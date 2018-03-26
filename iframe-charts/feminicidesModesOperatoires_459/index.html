@@ -1,0 +1,1082 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Féminicides, modes opératoires</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+  <link type="text/css" rel="stylesheet" href="https://statics.liberation.fr/newsite/css/fonts.css">
+  <link rel="stylesheet" href="../utilities/css/bulma-custom.css">
+  <link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+
+  <section>
+    <div id="chart">
+      <h3 id="chartTitle"></h3>
+      <div id="varSwitch" class='tags'></div>
+      <svg width="600" height="400"></svg>
+      <footer>
+        <div class="credits">
+          <a href="http://www.liberation.fr/data-nouveaux-formats-six-plus,100538" target="_blank">Six Plus</a>
+        </div>
+        <div class="sources">Source: <span id="chartSource">Libération</span></div>
+      </footer>
+
+    </div>
+  </section>
+
+
+  <!-- JS -->
+  <script src="../utilities/js/jquery-1.10.2.js"></script>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="../utilities/js/d3-annotation.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
+  <script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+  <script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="../utilities/js/moment-with-locales.min.js"></script>
+  <!-- <script src="static/js/app.js"></script> -->
+<script type="text/javascript" src="../utilities/js/iframeResizer.contentWindow.min.js"></script>
+  <script type="text/javascript">
+
+   var margin = {},
+   width,
+   height;
+   var initMargin = {
+    top: 20,
+    right: 20,
+    bottom: 60,
+    left: 40
+  };
+
+
+  var initTotalWidth = 600;
+  var initTotalHeight = 400;
+
+  var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+  var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+  var libeCategoricalColors = ['#e61e49', '#7c7c7c', '#000'];
+
+  var political_colors_obj = {
+    'EXG': "#751719",
+    'FI': "#cd0420",
+    "COM":'#af0e1d',
+    "ECO":'#52ae56',
+    "SOC":'#e6467e',
+    "DVG":'#f46099',
+    "RDG":'#f781b6',
+    'DIV': "#cccccc",
+    'REG': "#666",
+    "REM":'#ffb400',
+    "MDM":'#e85d21',
+    "UDI":'#9f64a2',
+    "DVD":'#026db5',
+    "LR":'#0058a2',
+    "DLF":'#003366',
+    "EXD":'#03034f',
+    "FN":'#000032'
+  };
+
+  var LibePoliticalColors =["#751719", "#cd0420", "#af0e1d", "#52ae56", "#e6467e", "#f46099", "#f781b6", "#cccccc", "#666", "#ffb400", "#e85d21", "#9f64a2", "#026db5", "#0058a2", "#003366", "#03034f", "#000032"];
+
+  var color = d3.scaleOrdinal(libeCategoricalColors);
+
+
+  var categorical_color_sheme = ['libeCategoricalColors', 'LibePoliticalColors', 'schemeDark2', 'schemeAccent', 'schemePastel2', 'schemeSet2', 'schemeSet1', 'schemePastel1', 
+  'schemeCategory10', 'schemeSet3', 'schemePaired', 'schemeCategory20', 'schemeCategory20b', 'schemeCategory20c'];
+
+  var basicColors = {plain:{initial:"#e61e49", personalized:null}, positive:{initial:'#85b4b2', personalized:null}, negative:{initial:"#e61e49", personalized:null}};
+
+
+  var data = [{"Prénom":"Doris","Age":"60.0","Ville":"Aubenas (Ardèche)","Circonstances":"Coups de batte de base-ball et strangulation pendant son sommeil","domicile (ou à proximité ?)":"oui","mode opératoire":"arme blanche et strangulation","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Sandrine","Age":"40.0","Ville":"Talence (Gironde)","Circonstances":"corps retrouvé dans son pavillon","domicile (ou à proximité ?)":"oui","mode opératoire":"?","Témoins":"?","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"","Separation":"oui","number":1},{"Prénom":"Valérie","Age":"39.0","Ville":"Besançon (Doubs)","Circonstances":"Coups de couteau après une dispute","domicile (ou à proximité ?)":"","mode opératoire":"arme blanche   ","Témoins":"non","Séparation ?":"non","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Catherine","Age":"40.0","Ville":"Crouzet (Gard)","Circonstances":"abattue par arme à feu dans sa voiture","domicile (ou à proximité ?)":"non","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Sandra","Age":"39.0","Ville":"Avon (Seine-et-Marne)","Circonstances":"Emboutie en voiture et poignardée ","domicile (ou à proximité ?)":"non","mode opératoire":"arme blanche","Témoins":"oui","Séparation ?":"oui?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Monique","Age":"63.0","Ville":"Saint-Beauzire (Puy-de-Dôme)","Circonstances":"Strangulation","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"non","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"non","number":1},{"Prénom":"Micheline","Age":"53.0","Ville":"Le Moule (Guadeloupe)","Circonstances":"Abattu au fusil en même temps que son amant supposé","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"oui","Séparation ?":"soupçons d'infidélité","Suicide auteur":"oui","autres morts":"oui (amant)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"Karen","Age":"37.0","Ville":"Maison-lès-Chaource (Aube)","Circonstances":"Poignardé lors du droit de visite de leur enfant","domicile (ou à proximité ?)":"non","mode opératoire":"arme blanche","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Fatima","Age":"58.0","Ville":"Rueil-Malmaison (Hauts-de-Seine)","Circonstances":"Coups de poing et arme blanche / antécédents","domicile (ou à proximité ?)":"oui","mode opératoire":"coups et arme blanche","Témoins":"non?","Séparation ?":"soupçons d'infidélité","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"46.0","Ville":"Nanteuil-lès-Meaux (Marne)","Circonstances":"Etranglée dans le sous-sol de sa maison / antécédents","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"oui","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Gisèle","Age":"53.0","Ville":"Pleucadeuc (Morbihan)","Circonstances":"Abattue au fusil dans sa voiture","domicile (ou à proximité ?)":"non","mode opératoire":"arme à feu","Témoins":"non?","Séparation ?":"oui","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Jennifer","Age":"31.0","Ville":"Vescovato (Haute-Corse)","Circonstances":"Etranglée, retrouvée deux mois après sa disparition dans un ravin","domicile (ou à proximité ?)":"non","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Rita","Age":"58.0","Ville":"Montmélian (Savoie)","Circonstances":"Abattue devant son entreprise / homme déjà condamné pour meurtre compagne 1988","domicile (ou à proximité ?)":"non","mode opératoire":"arme à feu","Témoins":"non?","Séparation ?":"oui","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Sylvie","Age":"47.0","Ville":"Rigny-le-Ferron (Aube)","Circonstances":"Abattue avec un fusil de chasse","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Marie-Rose","Age":"80.0","Ville":"Longjumeau (Essonne)","Circonstances":"Poignardée dans sa cuisine","domicile (ou à proximité ?)":"oui","mode opératoire":"arme blanche","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Hélène","Age":"27.0","Ville":"Trigny (Marne)","Circonstances":"Poignardée à son travail","domicile (ou à proximité ?)":"non","mode opératoire":"arme blanche","Témoins":"non?","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Betty","Age":"43.0","Ville":"Gosier (Guadeloupe)","Circonstances":"Brulée vive","domicile (ou à proximité ?)":"","mode opératoire":"brulée ","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Brulée","Separation":"oui","number":1},{"Prénom":"?","Age":"44.0","Ville":"Beaumont-lès-Valence (Drôme)","Circonstances":"Poignardée chez elle avec ses trois enfants","domicile (ou à proximité ?)":"oui","mode opératoire":"arme blanche","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"3 enfants","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Kelly","Age":"20.0","Ville":"Montval-sur-Loir (Sarthe)","Circonstances":"Poignardée alors qu'elle récupérait des affaires chez son ex","domicile (ou à proximité ?)":"non","mode opératoire":"arme blanche","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Julie","Age":"43.0","Ville":"Nice (Alpes-Maritimes)","Circonstances":"53 coups de couteau dont 7 mortels / avait déposé une main courante,","domicile (ou à proximité ?)":"oui","mode opératoire":"arme blanche","Témoins":"non","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Blandine","Age":"29.0","Ville":"Miramont-d’Astarac (Gers)","Circonstances":"Retrouvée morte à son domicile","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"ex ","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Nicole","Age":"62.0","Ville":"Abbeville (Somme)","Circonstances":"Battue à mort chez elle","domicile (ou à proximité ?)":"oui","mode opératoire":"coups  ","Témoins":"non","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"oui","number":1},{"Prénom":"Marcelle","Age":"90.0","Ville":"Limeil-Brévannes (Val-de-Marne)","Circonstances":"Frappée avec une casserole par son mari malade","domicile (ou à proximité ?)":"oui","mode opératoire":"objet contondant (casserole)","Témoins":"non","Séparation ?":"non","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Object contondant","Separation":"non","number":1},{"Prénom":"Cathy","Age":"43.0","Ville":"Fosses (Val-d’Oise)","Circonstances":"etranglée alors qu'elle venait récupérer des affaires","domicile (ou à proximité ?)":"non","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Virginie","Age":"41.0","Ville":"Vaivre-et-Montoille (Haute-Saône)","Circonstances":"frappée à plusieurs reprises au visage et à la tête par son ex qui avait déjà été condamné pour des violences","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"non","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"oui","number":1},{"Prénom":"Nicole","Age":"47.0","Ville":"Saint-Louis (Réunion)","Circonstances":"Renversée en voiture par son ex alors qu'elle était avec son compagnon","domicile (ou à proximité ?)":"non","mode opératoire":"renversée","Témoins":"non?","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Renversée","Separation":"oui","number":1},{"Prénom":"Djeneba","Age":"37.0","Ville":"Gorses (Lot)","Circonstances":"abattue d’un tir de fusil de chasse dans la cour de l’exploitation agricole où elle travaillait","domicile (ou à proximité ?)":"non","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Nastasia","Age":"18.0","Ville":"Longvilliers (Yvelines)","Circonstances":"poignardée chez elle   ","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"Djamila","Age":"31.0","Ville":"Alès (Gard)","Circonstances":"poignardée dans son lit ","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"soupçons d'infidélité","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Séverine","Age":"29.0","Ville":"La Plaine (Maine-et-Loire)","Circonstances":"battue à mort chez elle","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"enfants ? ","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Coups","Separation":"oui","number":1},{"Prénom":"?","Age":"35.0","Ville":"Trélazé (Maine-et-Loire)","Circonstances":"24 coups de couteau, principalement au visage et dans le cou dans sa cuisine / divorce en cours / antécédents violences","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui (un enfant de 11 ans, blessé)","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"?","Age":"35.0","Ville":"Rennes (Ille-et-Vilaine)","Circonstances":"45 coups de couteau, principalement à l’abdomen / «adulte protégée», rencontre à l'HP / alcool","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Alison","Age":"26.0","Ville":"Rombas (Moselle)","Circonstances":"poignardée à 11 reprises dans l’abdomen en voiture / compagnon connu pour violences","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"oui (un enfant de 2 ans)","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Danièle","Age":"72.0","Ville":"Toulouse (Haute-Garonne)","Circonstances":"tuée avec une arme de poing par son mari qui souffrait d'un cancer et s'est ensuite suicidé","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"France-Lise","Age":"52.0","Ville":"Haute-Rivoire (Rhône)","Circonstances":"abattue devant chez elle de deux balles","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"?","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Noémie","Age":"30.0","Ville":"Nailly (Yonne)","Circonstances":"touchée par un tir dans le dos après une dispute avec son compagnon, policier / connu pour des faits de violences sur une ex-compagne","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"non","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"Marion","Age":"41.0","Ville":"Aigrefeuille-sur-Maine (Loire-Atlantique)","Circonstances":"violée et battue / antécédents","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"non","number":1},{"Prénom":"Nathalie","Age":"45.0","Ville":"Brignoles (Var)","Circonstances":"Il est entré chez elle par la force et lui a tiré dessus à bout portant","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Michèle ","Age":"38.0","Ville":"Lagorce (Gironde)","Circonstances":"tuée à coups de marteau, il s'est enfuit en voiture / \"relation tumultueuse\" / soupçons violence sur la mère de la victime","domicile (ou à proximité ?)":"oui","mode opératoire":"objet contondant (marteau)","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Object contondant","Separation":"","number":1},{"Prénom":"?","Age":"78.0","Ville":"Domme (Dordogne)","Circonstances":"étranglée avec une écharpe alors qu'elle venait de déménager près de chez son fils","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"oui?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"?","Age":"48.0","Ville":"Eragny (Val-d’Oise)","Circonstances":"abattue de quatre balles devant son bar","domicile (ou à proximité ?)":"non","mode opératoire":"Arme à feu","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Sadia","Age":"47.0","Ville":"Cour-et-Buis (Isère)","Circonstances":"abattue de deux balles de revolver dont une dans la tête","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"?","Age":"30.0","Ville":"Chambéry (Savoie)","Circonstances":"poignardée à son restaurant ","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"oui","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"amant ?","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Margaux","Age":"29.0","Ville":"La Trinité (Alpes-Maritimes)","Circonstances":"retrouvé morte avec un sac sur la tête et une cordelette autour du cou","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"enfants ? ","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Claire","Age":"35.0","Ville":"Cohiniac (Côtes-d’Armor)","Circonstances":"retrouvée par un promeneur près d’une ferme abandonnée plusieur semaines après sa disparition, compagnon toxicomane","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"oui?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Liliya","Age":"49.0","Ville":"Cannes (Alpes-Maritimes)","Circonstances":"tuée d’une balle dans la tête un matin devant son immeuble","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non?","Séparation ?":"ex ","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Emilie","Age":"34.0","Ville":"Beauvilliers (Eure-et-Loir)","Circonstances":"ligotée sur les rails et écrasée par un TGV","domicile (ou à proximité ?)":"non","mode opératoire":"Ecrasée par un train","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Ecrasée par un train","Separation":"oui","number":1},{"Prénom":"Sophie","Age":"90.0","Ville":"Crépy-en-Valois (Oise)","Circonstances":"étranglée chez elle après être rentrée de l'hôpital, mari avait déjà tenté de se suicider","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"?","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"","number":1},{"Prénom":"?","Age":"32.0","Ville":"Beauvais (Oise)","Circonstances":"étranglée avec un câble électrique / antécédents, compagnon avocat","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"non","number":1},{"Prénom":"Virginie","Age":"48.0","Ville":"Saint-Omer (Pas-de-Calais)","Circonstances":"corps retrouvé après l’incendie de son appartement, le feu aurait servi à cacher le meurtre","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"ex ","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Stella","Age":"40.0","Ville":"Les Ormes (Vienne)","Circonstances":"corps retrouvé dans le début d'incendie de son pavillon / atteinte d'une grave maladie","domicile (ou à proximité ?)":"oui","mode opératoire":"Brulée ? ","Témoins":"non","Séparation ?":"non?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Brulée","Separation":"non","number":1},{"Prénom":"?","Age":"45.0","Ville":"Pont-l’Évêque (Normandie)","Circonstances":"Corps retrouvé après que son compagnon a appelé la police / se disait en danger, \"relation conflictuelle\"","domicile (ou à proximité ?)":"oui","mode opératoire":"arme blanche et strangulation","Témoins":"non","Séparation ?":"non?","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Rhadia","Age":"","Ville":"Evry (Essonne)","Circonstances":"?","domicile (ou à proximité ?)":"oui","mode opératoire":"?","Témoins":"?","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"","Separation":"","number":1},{"Prénom":"?","Age":"34.0","Ville":"Saint-Alban-Leysse (Savoie)","Circonstances":"trouvée dans le coffre de la voiture de son compagnon qui a prévenu les secours","domicile (ou à proximité ?)":"non","mode opératoire":"Asphyxie","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Asphyxiée","Separation":"non","number":1},{"Prénom":"?","Age":"32.0","Ville":"Elancourt (Yvelines)","Circonstances":"étranglée par son amant qui s'est ensuite suicidé, ex belle mère a donné l'alerte","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"","number":1},{"Prénom":"Brigitte","Age":"62.0","Ville":"Chauny (Aisne)","Circonstances":"retrouvée étranglée à leur domicile. son mari s’est rendu à la gendarmerie pour avouer son crime. déjà condamné pour violences","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Natacha","Age":"38.0","Ville":"Alzonne (Aude)","Circonstances":"tuée à coups de batte de base-ball dans la tête / antécédents, enfants placés","domicile (ou à proximité ?)":"oui","mode opératoire":"objet contondant (batte de base-ball)","Témoins":"non","Séparation ?":"non?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Object contondant","Separation":"non","number":1},{"Prénom":"Estelle","Age":"36.0","Ville":"Abbeville (Somme)","Circonstances":"retrouvée dans le logement de son compagnon, un trentenaire qui vivait dans un centre d’hébergement pour personnes précaires / alcool","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"Florence","Age":"31.0","Ville":"Paea (Tahiti)","Circonstances":"poignardée à la gorge et dans le dos","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui (fils de 3 ans)","Séparation ?":"soupçons d'infidélité / dispute","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Michèle ","Age":"","Ville":"Corbas (Rhône)","Circonstances":"le corps et celui de sa fille retrouvée à son domicile, où vivait encore l'auteur. Le suspect a avoué avoir tué son épouse mais affirme que celle-ci venait de tuer leur fille. fils vivait aussi dans l'appartement (mais \"ignorait\" la situation)","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"? ","Séparation ?":"non?","Suicide auteur":"non","autres morts":"oui (sa fille de 18 ans)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"37.0","Ville":"Paris (Ile de France)","Circonstances":"retrouvée dans une poubelle de son immeuble, le conjoint a avoué / antécédents violences","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"non","number":1},{"Prénom":"?","Age":"","Ville":"Bandol (Var)","Circonstances":"retrouvée par la police après alerte du conjoint","domicile (ou à proximité ?)":"oui","mode opératoire":"Asphyxie","Témoins":"oui (leur fille)","Séparation ?":"?","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Asphyxiée","Separation":"","number":1},{"Prénom":"?","Age":"50.0","Ville":"Carentan (Normandie)","Circonstances":"Abattue au fusil de chasse","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"?","Age":"","Ville":"Saint-Etienne (Loire)","Circonstances":"retrouvée chez elle après appel de son compagnon","domicile (ou à proximité ?)":"oui","mode opératoire":"?","Témoins":"?","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"","Separation":"","number":1},{"Prénom":"","Age":"30.0","Ville":"Grenoble (Isère)","Circonstances":"retrouvée chez elle après appel de son compagnon aux pompiers / frappée à la tête / antécédents","domicile (ou à proximité ?)":"oui","mode opératoire":"coups ","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"","number":1},{"Prénom":"Frédérique","Age":"51.0","Ville":"Poligny (Seine-et-Marne)","Circonstances":"étranglée avec une ceinture de peignoir de nuit, morte après trois jours de coma","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"","number":1},{"Prénom":"Hulya","Age":"35.0","Ville":"La Grand-Croix (Loire)","Circonstances":"poignardé par son ex alors qu'elle était avec son nouveau conjoint, il l'a ensuite poursuivi et roulé dessus","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche et écrasée","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"?","Age":"64.0","Ville":"Saint-Nizier d’Azergues (Rhône)","Circonstances":"retrouvée morte à son domicile,","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"non","number":1},{"Prénom":"Thalie","Age":"36.0","Ville":"Nantes (Loire-Atlantique)","Circonstances":"frappée avec un robinet neuf, pas encore monté après une dispute sur \"la cuisson des oeufs au plat\" / antécédents psychiatriques","domicile (ou à proximité ?)":"oui","mode opératoire":"objet contondant (robinet) ","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Object contondant","Separation":"non","number":1},{"Prénom":"Geneviève ","Age":"77.0","Ville":"La Bassée (Nord)","Circonstances":"son mari a prévenu les secours. Il l’aurait étranglée.","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"non","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"non","number":1},{"Prénom":"Laura","Age":"18.0","Ville":"Rambervilliers (Vosges)","Circonstances":"Son compagnon, passionné d’armes à feux, a admis lui avoir tiré dessus mais plaide le tir accidentel. / antécédents, interdiction de détenir armes","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"non","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"Aurélie","Age":"29.0","Ville":"Heyrieux (Isère)","Circonstances":"16 coups de couteau et égorgée par son compagnon alcoolisé","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui (enfants)","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"Sindy","Age":"34.0","Ville":"Noyon (Oise)","Circonstances":"Tuée sur un quai de gare avec deux de ses enfants par son ex policier, alors qu'elle se rendait chez son frère après séparation","domicile (ou à proximité ?)":"non","mode opératoire":"Arme à feu","Témoins":"oui","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"oui (deux enfants)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"?","Age":"52.0","Ville":"Montpellier (Hérault)","Circonstances":"Poignardée par son compagnon alcoolisé","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"50.0","Ville":"Pertuis (Vaucluse)","Circonstances":"Battue à mort par son compagnon antécédents violences","domicile (ou à proximité ?)":"oui","mode opératoire":"Coups","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"","number":1},{"Prénom":"?","Age":"42.0","Ville":"Antibes (Alpes-Maritimes)","Circonstances":"Une voisine a aperçu par sa fenêtre un corps gisant dans l’appartement, la police a retrouvé deux corps","domicile (ou à proximité ?)":"non","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"","number":1},{"Prénom":"Lauren","Age":"24.0","Ville":"Marnay (Vienne)","Circonstances":"retrouvée étranglée chez elle après que son compagnon a prévenu la police","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"oui (deux enfants de 4 et 1,5 an)","Séparation ?":"peur de la séparation","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Leila","Age":"34.0","Ville":"Fort-de-France (Martinique)","Circonstances":"un marabout a prévenu la police, expliquant qu’un homme était venu lui demander comment faire disparaître trois corps. / antécédents violences","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui","Séparation ?":"jalousie","Suicide auteur":"non","autres morts":"oui (deux enfants)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"34.0","Ville":"Le Plessis-Robinson (Hauts-de-Seine)","Circonstances":"immolée par le feu, morte qq jours plus tard","domicile (ou à proximité ?)":"oui","mode opératoire":"Brulée ","Témoins":"oui (enfant)","Séparation ?":"oui","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Brulée","Separation":"oui","number":1},{"Prénom":"Aude","Age":"34.0","Ville":"Vannes (Morbihan)","Circonstances":"retrouvée par sa mère dansun appartement de famille, l'auteur s'est noyé qq jorus après","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non?","Séparation ?":"dispute","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"24.0","Ville":"Orléans (Loiret)","Circonstances":"morte des suites d’une chute depuis le balcon de son appartement après une dispute","domicile (ou à proximité ?)":"oui","mode opératoire":"Défenestrée","Témoins":"non?","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Défenestrée","Separation":"non","number":1},{"Prénom":"Emmanuelle","Age":"26.0","Ville":"Jeumont (Nord)","Circonstances":"poignardée dans le hall de son immeuble devant ses enfants par son ex, qui avait été en garde à vue quelques jours plus tôt pour menaces de mort","domicile (ou à proximité ?)":"oui","mode opératoire":"coups de couteau","Témoins":"oui (les enfants)","Séparation ?":"oui","Suicide auteur":"non","autres morts":"non","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Marie-Sophie","Age":"24.0","Ville":"Strasbourg (BAs-Rhin)","Circonstances":"Retrouvée morte chez elle, jeune diplômée, son compagnon a pris la fuite au Maroc","domicile (ou à proximité ?)":"oui","mode opératoire":"coups et blessures à l'arme blanche","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"?","Age":"56.0","Ville":"Ernée (Mayenne)","Circonstances":"Retrouvée poignardée chez elle","domicile (ou à proximité ?)":"oui","mode opératoire":"coups de couteau","Témoins":"?","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"Yamina","Age":"42.0","Ville":"Auxerre (Yonne)","Circonstances":"Son mari l'a déposée au supermarché et elle a disparu. Son corps a été découvert en forêt quelques mois plus tard.  Son mari a été mis en examen pour homicide volontaire. Il nie les faits.","domicile (ou à proximité ?)":"non","mode opératoire":"?","Témoins":"?","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"","Separation":"","number":1},{"Prénom":"?","Age":"51.0","Ville":"Moléans (Eure-et-Loire)","Circonstances":"Tuée de 32 coups de couteau, son fils a découvert le corps. Le conjoint avait été condamné pour menaces de mort sur elle","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"","number":1},{"Prénom":"Corinne","Age":"42.0","Ville":"La Trinité (Réunion)","Circonstances":"Tuée sous les coups de son mari, les voisins ont essayé en vain d'enfoncer la porte","domicile (ou à proximité ?)":"oui","mode opératoire":"Object contondant","Témoins":"oui (les voisins)","Séparation ?":"possible","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Object contondant","Separation":"oui","number":1},{"Prénom":"Marielle","Age":"50.0","Ville":"Varen (Tarn-et-Garonne)","Circonstances":"Tué par son conjoint, policier à la retraite (ainsi que leur chien) avec un fusil","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu ","Témoins":"non","Séparation ?":"?","Suicide auteur":"oui","autres morts":"le chien","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"","number":1},{"Prénom":"Catherine","Age":"50.0","Ville":"Champagne-sur-Oise (Val-d'Oise)","Circonstances":"son ancien compagnon l'a abattue chez elle avec une carabine","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"?","Age":"66.0","Ville":"Louroux-Bourdonnais (Allier)","Circonstances":"tuée par son mari par arme à feu","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"","number":1},{"Prénom":"Céline","Age":"47.0","Ville":"Nouvion-et-Catillon (Aisne)","Circonstances":"Son mari agriculteur, l'a tuée ainsi que ses trois enfants avec arme à feu","domicile (ou à proximité ?)":"oui","mode opératoire":"arme à feu","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"oui (trois enfants 20, 18 et 14 ans)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"Annie","Age":"67.0","Ville":"Aizelles (Aisne)","Circonstances":"étouffée par son mari, malade","domicile (ou à proximité ?)":"oui","mode opératoire":"étouffée","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Etouffée","Separation":"non","number":1},{"Prénom":"?","Age":"55.0","Ville":"Bolbec (Seine-Maritime)","Circonstances":"tuée par son ex, sans doute ivre","domicile (ou à proximité ?)":"oui","mode opératoire":"strangulation","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"oui","number":1},{"Prénom":"Christine","Age":"44.0","Ville":"Tulle (Corrèze)","Circonstances":"fonctionnaire de police, battue à mort par son époux policier","domicile (ou à proximité ?)":"oui","mode opératoire":"coups","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Coups","Separation":"non","number":1},{"Prénom":"?","Age":"67.0","Ville":"Tarbes (Hautes-Pyrénées)","Circonstances":"tuée par son mari, Bernard, qui avait aussi tenté de tuer son frère handicapé","domicile (ou à proximité ?)":"oui","mode opératoire":"Strangulation","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"non","number":1},{"Prénom":"Noémie","Age":"30.0","Ville":"Amiens (Somme)","Circonstances":"tuée par son ex au cutter, contre qui elle avait porté plainte pour violence. Il est venu l'attendre à son travail alors qu'il avait une interdiction de l'approcher","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"oui","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"oui","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"?","Age":"62.0","Ville":"Aoste (Isère)","Circonstances":"tuée par son mari, qui s'est suicidé, sur fond de problème d'argent","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"?","Age":"","Ville":"Bazens (Lot-et-Garonne)","Circonstances":"Les quatre membres de la famille (parents et deux enfants de 8 et 10 ans) ont été retrouvés morts dans l'incendie de leur maison. L'autopsie a fait ressortir de traumatismes multuples et des traces d'armes à feu. Le mobile serait la jalousie..","domicile (ou à proximité ?)":"oui","mode opératoire":"non précisé, puis incendie","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"oui (deux enfants 8 et 10 ans)","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Brulée","Separation":"non","number":1},{"Prénom":"Zenash","Age":"27.0","Ville":"Neuilly-sur-Marne (Seine-Saint-Denis)","Circonstances":"Ethiopienne, marathonienne, tuée par un homme qui aurait été son compagnon et a avoué l'avoir étouffée. Il a tenté de se suicider)","domicile (ou à proximité ?)":"oui","mode opératoire":"étouffée ","Témoins":"non","Séparation ?":"?","Suicide auteur":"tentative","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Etouffée","Separation":"","number":1},{"Prénom":"?","Age":"25.0","Ville":"Le Thoronet (Var)","Circonstances":"frappée à la tête et étranglée avec une rallonge électrique par son compagnie qui s'est enfuit ","domicile (ou à proximité ?)":"oui","mode opératoire":"coups et strangulation","Témoins":"non","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Strangulation","Separation":"","number":1},{"Prénom":"Jacqueline","Age":"69.0","Ville":"Chauray (Deux-Sèvres)","Circonstances":"son mari d’abord signalé sa disparition à la police, avant d'avouer l'avoir tuée","domicile (ou à proximité ?)":"oui","mode opératoire":"coups et étouffement","Témoins":"non","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Etouffée","Separation":"non","number":1},{"Prénom":"Shresa","Age":"36.0","Ville":"Villefranche-sur-Saône (Rhône)","Circonstances":"mari s’est rendu à la police en expliquant avoir tué son épouse à coups de couteau. soupçonnait une tromperie","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"soupçons d'infidélité","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Lou","Age":"18.0","Ville":"Cavaillon (Vaucluse)","Circonstances":"Elle sortait depuis quelques mois avec Mickaël, atteint de troubles psychiatriques. Il l'a égorgé avant de se pendre","domicile (ou à proximité ?)":"non","mode opératoire":"Arme blanche","Témoins":"non","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme blanche","Separation":"oui","number":1},{"Prénom":"Aurélie","Age":"34.0","Ville":"Cordon (Haute-Savoie)","Circonstances":"son ex lui a tiré dessus au fusil de chasse un matin, sur le parking de la mairie.","domicile (ou à proximité ?)":"non","mode opératoire":"Arme à feu","Témoins":"?","Séparation ?":"oui","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"Arme à feu","Separation":"oui","number":1},{"Prénom":"Odette","Age":"75.0","Ville":"Laperche (Lot-et-Garonne)","Circonstances":"Son époux l’a abattue au fusil de chasse avant de retourner l’arme contre lui. On ignore s’il s’agissait d’un accord entre eux lié à l’état de santé de la femme","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"non","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"non","number":1},{"Prénom":"?","Age":"89.0","Ville":"Ploemeur (Morbihan)","Circonstances":"son mari l’a abattue avec son fusil de chasse. Il a ensuite retourné l’arme contre lui. On ignore pourquoi.","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme à feu","Témoins":"non","Séparation ?":"?","Suicide auteur":"oui","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"non","mode opératoire cat":"Arme à feu","Separation":"","number":1},{"Prénom":"?","Age":"41.0","Ville":"Toulon (Var)","Circonstances":"Lors du déjeuner du 25 décembre, le couple s’est disputé. Son mari l’a tuée de plusieurs coups de couteau à l’abdomen devant ses enfants","domicile (ou à proximité ?)":"oui","mode opératoire":"Arme blanche","Témoins":"oui","Séparation ?":"dispute","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Arme blanche","Separation":"non","number":1},{"Prénom":"Mariama","Age":"32.0","Ville":"Montreuil (Seine-Saint-Denis)","Circonstances":"son mari l'a poussé du 4e etage. il dit qu’elle s’est d’elle-même jetée dans le vide mais des voisins disent l’avoir vu pousser sa femme. Elle présentait au moins 23 entailles plus ou moins profondes mais aucune n’était mortelle / antécédents main courante","domicile (ou à proximité ?)":"oui","mode opératoire":"Défenestrée","Témoins":"oui","Séparation ?":"?","Suicide auteur":"non","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"oui","mode opératoire cat":"Défenestrée","Separation":"","number":1},{"Prénom":"","Age":"","Ville":"","Circonstances":"","domicile (ou à proximité ?)":"","mode opératoire":"","Témoins":"","Séparation ?":"","Suicide auteur":"","autres morts":"","interdiction entrer en contact":"","Temoins_Bol":"","Témoins_bol":"","mode opératoire cat":"","Separation":"","number":0}];
+
+  var manualReusableParameters = {"rotateXRow":{"value":false,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1,"category":"general"},"chart_width":{"value":482,"type":"slider","label":"Largeur du graphique","initial_value":600,"min":300,"max":800,"activated":1,"category":"general"},"chart_height":{"value":292,"type":"slider","label":"Hauteur du graphique","initial_value":400,"min":200,"max":800,"activated":1,"category":"general"},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_left":{"value":21,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_right":{"value":19,"type":"slider","label":"marge droite","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_top":{"value":0,"type":"slider","label":"marge haute","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"sort_descending":{"value":true,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1,"category":"general"},"invert_order":{"value":false,"type":"checkbox","label":"inverser l'ordre","initial_value":false,"activated":0,"category":"general"},"differentAxisY":{"value":false,"type":"checkbox","label":"Adapter l'axe des Y aux données","initial_value":false,"activated":0,"category":"general"},"rangeX":{"type":"checkInputs","label":"Range X personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":0,"calculated_right_value":38,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"general"},"rangeY":{"type":"checkInputs","label":"Range Y personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"general"},"color_field_select":{"value":"libeCategoricalColors","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"libeCategoricalColors","activated":0,"fields":["libeCategoricalColors","LibePoliticalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"],"category":"color"},"persColorsCheck":{"value":false,"type":"persColorsCheck","label":"Couleurs personalisées","initial_value":false,"activated":1,"category":"color"},"indice_100":{"value":false,"type":"checkbox","label":"Démarrer à l'indice 100","initial_value":false,"activated":1,"category":"calculs"},"displayLabel":{"value":false,"type":"checkbox","label":"afficher la valeur","initial_value":false,"activated":0,"category":"labels"},"startEndValues":{"type":"checkInputs","label":"Valeurs de début et de fin","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"filter"},"caseLegend":{"type":"checkSelects","label":"Afficher la légende","range":[{"value":"topRight","label":"En haut à droite"},{"value":"topLeft","label":"En haut à gauche"},{"value":"bottomLeft","label":"En bas à gauche"},{"value":"bottomRight","label":"En bas à droite"}],"initial_range_value":"topRight","manual_range_value":null,"activated":1,"category":"legend"},"padding_left_legend":{"value":0,"type":"slider","label":"marge gauche légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"padding_top_legend":{"value":0,"type":"slider","label":"marge haute légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"legendOrientation":{"type":"simpleSelect","label":"Orientation de la légende","range":[{"value":"vertical","label":"Verticale"},{"value":"horizontal","label":"Horizontale"}],"initial_range_value":"vertical","manual_range_value":null,"category":"legend","dependOn":"caseLegend"},"inner_padding_legend":{"value":2,"type":"slider","label":"Marge intérieure de la légende","initial_value":2,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"leftAxisTickNumber":{"value":10,"type":"slider","label":"Nombre de graduations à gauche","initial_value":10,"min":0,"max":20,"activated":1,"category":"grid"},"bottomAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations en bas","initial_value":5,"min":0,"max":20,"activated":1,"category":"grid"},"leftAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe gauche","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"bottomAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe bas","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"ticksStroke":{"type":"simpleSelect","label":"Couleur des graduations","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#e4e4e4","activated":1,"category":"grid"},"leftTickSize":{"type":"simpleSelect","label":"Taille des graduations horizontales","range":[{"value":"small","label":"petites"},{"value":"fullWidth","label":"largeur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"small","activated":1,"category":"grid"},"bottomTickSize":{"type":"simpleSelect","label":"Taille des graduations verticales","range":[{"value":"small","label":"petites"},{"value":"fullHeight","label":"hauteur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"fullHeight","activated":1,"category":"grid"},"yAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe gauche","initial_value":false,"activated":1,"category":"labels"},"xAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe bas","initial_value":false,"activated":1,"category":"labels"},"yAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe gauche","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe bas","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"xAxisLabel"},"yAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe gauche","category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe bas","category":"labels","activated":false,"dependOn":"xAxisLabel"},"trimKValue":{"value":true,"type":"checkbox","label":"Supprimer les espaces inutiles","initial_value":true,"activated":0,"category":"textRemplacement"},"hideCircles":{"value":false,"type":"checkbox","label":"Supprimer les cercles","initial_value":false,"activated":0,"category":"general"},"dateField":{"value":false,"type":"checkSelects","label":"Y a-t-il un champ date ?","range":"selectedFields","initial_range_value":"topRight","manual_range_value":null,"initial_value":false,"activated":1,"category":"textRemplacement"},"dateFieldFormat":{"value":"DD/MM/YYYY","initial_value":"DD/MM/YYYY","type":"simpleInputs","label":"Format de date","category":"textRemplacement","activated":false,"dependOn":"dateField"},"previousDate":{"type":"simpleInputs","label":"date n-1","category":"textRemplacement","activated":false,"dependOn":"dateField"},"groupingFunction":{"type":"simpleSelect","label":"Fonction de réduction des données","range":[{"value":"sum","label":"Somme"},{"value":"mean","label":"moyenne"},{"value":"median","label":"médianne"}],"initial_range_value":null,"manual_range_value":"sum","activated":0,"category":"calculs"},"logScale":{"value":false,"type":"checkbox","label":"Echelle logarithmique","initial_value":false,"activated":0,"category":"calculs"},"beeswarnRadius":{"value":2,"type":"slider","label":"Taille des points","initial_value":2,"min":1,"max":20,"activated":0,"category":"general"},"beeswarnCollide":{"value":3,"type":"slider","label":"Eloignement des points","initial_value":3,"min":1,"max":20,"activated":0,"category":"general"},"customCode":{"type":"simpleInputs","label":"Ajouter du code js","activated":1,"category":"textRemplacement"}};
+
+  var graphParameters = {"selected_xRows":["number"],"selected_yRows":["mode opératoire cat"],"selected_size":[],"selected_color":[],"selected_label":[],"selected_tooltip":[],"personalizedColorsObject":{},"selectedColorScheme":"libeCategoricalColors","additionnalParam":"","selected_graph":"barChartHorizontal","annotations":[],"chartTitle":"Féminicides, modes opératoires","chartSource":"Libération"};
+
+  var manualCustomParameters = {"fieldsToReplace":[]};
+
+  color = findColorsScheme(graphParameters.selectedColorScheme);
+
+
+  graphParameters.annotations.forEach(function(d){
+
+    d.type = d3[d.functionName];
+
+
+  })
+
+  var parametersType = [{
+    selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+    {selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+    {selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+    {selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+    {selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+    ];
+
+    var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+
+    var parseTime = d3.timeParse('%Y/%m/%d');
+
+    d3.select("#chart")
+    .attr("class", graphParameters.selected_graph);
+
+    d3.select("#chartTitle")
+    .text(graphParameters['chartTitle']);
+
+
+        d3.select("#chartSource")
+    .text(graphParameters['chartSource']);
+
+    function initChart() {
+
+      var svg = d3.select("svg")
+      .call(responsivefy);
+
+      margin = {
+        top: 20,
+        right: 20,
+        bottom: 60,
+        left: 50
+      };
+
+      width = +svg.attr("width") - margin.left - margin.right;
+      height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+
+      var g = svg.append("g")
+      .attr('class', 'graphContainer')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--y")
+      .attr('transform', 'translate(0,0)');
+
+      g.append("g")
+      .attr('class', 'innerGraph');
+
+    }
+
+
+    var makeAnnotations_ = d3.annotation()
+    .editMode(false)
+  // .type(annotationType)
+  ;
+
+
+  var annotationGroup = d3.select("#chart svg")
+  .append("g")
+  .attr("class", "annotation-group");
+
+
+  var annotations = graphParameters.annotations ? graphParameters.annotations : [];
+
+
+  function makeAnnotation(){
+
+
+
+    for (i in makeAnnotations_.annotations()){
+
+      var d = makeAnnotations_.annotations()[i];
+
+// console.log(d);
+// console.log(i);
+
+annotations[i].x = d.x;
+annotations[i].y = d.y;
+annotations[i].dx = d.dx;
+annotations[i].dy = d.dy;
+
+}
+
+makeAnnotations_
+.annotations(annotations)
+
+d3.select("#chart svg g.annotation-group")
+.call(makeAnnotations_);
+
+
+d3.selectAll(".annotation-group .annotations .annotation text")
+      .attr('transform', function(d){return 'rotate(' + (+d.note.orientation) + ')'});
+
+d3.select(".annotation-group").node().parentNode.appendChild(d3.select(".annotation-group").node())
+
+}
+
+
+function makeHorizontalBarchart(data) {
+
+    var kValue = graphParameters['selected_yRows'][0];
+    var dValue = graphParameters['selected_xRows'][0];
+    var dValues = graphParameters['selected_xRows'];
+
+    var this_padding_left = 40;
+
+    data.forEach(function(d) {
+        d[dValue] = formatNumbers(d[dValue]);
+        for (v in dValues){
+            d[dValues[v]] = formatNumbers(d[dValues[v]]);
+        }
+    });
+
+    console.log(data);
+
+    var svg = d3.select("svg");
+    var g = svg.select('g.graphContainer');
+    var g_inner = g.select('g.innerGraph');
+
+    updateParameters();
+
+    // var this_grouped_data = data.map(function(d) { return d.this_key; })
+    // .map(function(d){return {key:d, value: d3.sum(data.filter(function(e){return e.this_key == d}), function(e){return e.this_value})}});
+
+    this_grouped_data = groupbyKVMultiple(data, kValue, dValues, d3.sum);
+    this_grouped_data = this_grouped_data.filter(function(d) { return d[kValue] != ''});
+
+
+
+    manualReusableParameters.rangeX.calculated_left_value =  0;
+    manualReusableParameters.rangeX.calculated_right_value =  d3.max(this_grouped_data, function(d) { return d3.max(d3.entries(d).filter(function(k){ return dValues.indexOf(k.key) != -1}).map(function(v) {return v.value}))});
+
+    var thisXMin = manualReusableParameters.rangeX.value === false ?  manualReusableParameters.rangeX.calculated_left_value : manualReusableParameters.rangeX.manual_left_value !== null ? manualReusableParameters.rangeX.manual_left_value : manualReusableParameters.rangeX.calculated_left_value;
+    var thisXMax = manualReusableParameters.rangeX.value === false ?  manualReusableParameters.rangeX.calculated_right_value : manualReusableParameters.rangeX.manual_right_value !== null ? manualReusableParameters.rangeX.manual_right_value : manualReusableParameters.rangeX.calculated_right_value;
+
+    // reGenerateParameters();
+
+    if (manualReusableParameters.sort_descending.value == 1){
+        this_grouped_data = this_grouped_data.sort(function(a, b) { return b[dValue] - a[dValue]});
+    }
+
+    y = d3.scaleBand().rangeRound([0, height]).padding(0.1);
+    // x = d3.scaleLinear().rangeRound([(manualReusableParameters.padding_left.value + this_padding_left), width]);
+    x = d3.scaleLinear().rangeRound([(manualReusableParameters.padding_left.value), width]);
+
+
+    
+ if (graphParameters.selected_tooltip && graphParameters.selected_tooltip.length > 0){
+        this_grouped_data = add_tooltip_values(this_grouped_data, data, kValue)
+    }
+
+    y.domain(this_grouped_data.map(function(d) { return d[kValue];}));
+    x.domain([thisXMin, thisXMax]);
+
+
+
+
+    changeAxis(x, y)
+
+    g.select('g.innerGraph')
+    .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (manualReusableParameters.padding_top.value) +")");
+
+    g.select("g.axis.axis--x")
+    // .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + height + ")")
+    .attr("transform", "translate(" + (this_padding_left + manualReusableParameters.padding_left.value) + "," + (height + manualReusableParameters.padding_top.value ) + ")")
+    .call(axis_bottom);
+
+    g.select("g.axis.axis--y")
+    .attr('transform', 'translate(' + (manualReusableParameters.padding_left.value + this_padding_left) + ',' + manualReusableParameters.padding_top.value  + ')')
+    .call(axis_left);
+
+
+    var all_bars = g_inner.selectAll("rect").data(this_grouped_data);
+
+    all_bars
+    .transition()
+    .duration(200)
+    .attr("x", (manualReusableParameters.padding_left.value + this_padding_left))
+    .attr("y", function(d) { return y(d[kValue]); })
+    .attr("height", y.bandwidth())
+    .attr("width", function(d) { return x(d[dValue]); });
+
+    all_bars.exit().transition().duration(200).remove();
+
+    all_bars
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", (manualReusableParameters.padding_left.value + this_padding_left))
+    .attr("y", function(d) { return y(d[kValue]) })
+    .attr("height", y.bandwidth())
+    .attr("width", function(d) { return x(d[dValue]); })
+    .on('mouseover', function(d, i){ show_tooltip(d)})
+    .on('mouseout', function(d){ hide_tooltip()});
+
+    drawLegend()  
+    customizeAxis()
+    addCustomCode()
+}
+
+initChart();
+
+makeHorizontalBarchart(data);
+
+
+
+
+
+makeAnnotation();
+
+d3.select("svg").call(responsivefy)
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+  var d = d.data ? d.data : d;
+
+  if (d){
+
+    d3.select("#tooltip").style('display', 'block');
+
+    var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+    var dx = d3.event.pageX;
+
+    if (dx > d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width){
+
+      dx = d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width;
+    }
+
+    var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+
+        if (graphParameters.selected_tooltip && graphParameters.selected_tooltip.length > 0){
+            var param_array = [graphParameters.selected_tooltip]
+            // var tooltip_values = 1
+        }
+        else{
+        
+                var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+                graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+        }
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+
+
+         );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+      d3.select("#tooltip")
+      .classed('is-active', false);
+
+      d3.select("#tooltip")
+      .style('display', 'none');
+
+    }
+
+    function updateParameters(){
+
+      var svg = d3.select("svg");
+
+      svg
+      .attr('width', manualReusableParameters.chart_width.value);
+
+      // d3.select('div#chart')
+      // .style('width', manualReusableParameters.chart_width.value);
+
+      svg.attr("width", manualReusableParameters.chart_width.value);
+
+      svg
+      .attr('height', manualReusableParameters.chart_height.value);
+
+      width = manualReusableParameters.chart_width.value - initMargin.left - initMargin.right;
+
+      height = manualReusableParameters.chart_height.value - initMargin.top - initMargin.bottom;
+
+      width = width  - manualReusableParameters.padding_left.value - manualReusableParameters.padding_right.value;
+      height = height - manualReusableParameters.padding_bottom.value- manualReusableParameters.padding_top.value;
+
+    }
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+  var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+  new_n = +new_n;
+
+  return new_n  
+
+}
+
+
+function formatNumbersDate(n, field){
+
+  if (manualReusableParameters.dateField.value == true && manualReusableParameters.dateField.manual_range_value == field){
+
+    return moment(n, manualReusableParameters.dateFieldFormat.value)
+  }
+
+  return +n  
+
+}
+
+
+function arrayIfObject(objectData) {
+
+  var arrayData = objectData.map(function(d) { return d3.values(d) });
+  arrayData.unshift(d3.keys(objectData[0]));
+  return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+  var objectData = arrayData.slice(1).map(function(d) {
+    var this_object = {}
+    for (i in arrayData[0]) {
+      this_object[arrayData[0][i]] = d[i];
+    }
+    return this_object
+  })
+  return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+})
+  .entries(data)
+  return result
+}
+
+function groupbyKVMultiple(data, key, values, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) {
+    var those_values = {};
+    for (i in values){
+      var this_value = values[i];
+      those_values[this_value] = this_function(v, function(e) { return e[this_value]} )
+    }
+
+    return { those_values}
+  })
+  .entries(data);
+
+  result = result.map(function(d){ return _.assign({[key]: d['key'] }, d['value']['those_values'])});
+
+  return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+
+    new_data.push(data.map(function(d) {
+      return {
+        x_value: +d[kValue],
+        name: v,
+        y_value: +d[v]
+      }
+    }));
+  }
+
+  return new_data
+}
+
+
+
+function prepareLineChartIndice100Growth(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    if (manualReusableParameters.dateField.value && manualReusableParameters.previousDate.value){
+        var nMoins1 = moment(manualReusableParameters.previousDate.value, manualReusableParameters.dateFieldFormat.value);
+    }
+    else{
+      var nMoins1 = (formatNumbers(data[0][kValue]) - 1);
+    }
+    var new_data_next = [{ x_value: nMoins1, name: v, y_value: 100}];
+
+for (i in data){
+var d = data[i];
+new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:_.round((new_data_next[i].y_value * ((100 + (formatNumbers(d[v])))/100)), 2)});
+}
+
+new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+
+function prepareLineChartIndice100Value(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    // var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+    var new_data_next = [];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:(_.round(formatNumbers(100*d[v])/formatNumbers(data[0][v]), 2))});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+function checkIfpercentageInArray(data, dValues){
+
+  var chained_data = _.chain(d3.entries(data))
+  .map(function(d){return d.value})
+  .map(function(d){return dValues.map(function(e){return d[e]})})
+  .value()
+
+  var thisMinMAx = [d3.min(chained_data, function(d){return d3.min(d, function(e){return +e})}), d3.max(chained_data, function(d){return d3.max(d, function(e){return +e})})];
+
+  if (thisMinMAx[0] > -100 && thisMinMAx[0] < 100 && thisMinMAx[1] > -100 && thisMinMAx[1] < 100){
+    return true
+  }
+
+  return false
+
+}
+
+
+function emptyChart(){
+
+  d3.select('#varSwitch').selectAll("*").remove();
+  d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+
+function findColorsScheme(thisSelection){
+
+  var this_domain = color.domain();
+
+  var this_color = thisSelection == 'libeCategoricalColors' ?  d3.scaleOrdinal(libeCategoricalColors) : thisSelection == 'LibePoliticalColors' ?  d3.scaleOrdinal(LibePoliticalColors) : d3.scaleOrdinal(d3[manualReusableParameters.color_field_select.value]);
+
+  this_color.domain(this_domain);
+
+  return this_color;
+}
+
+function colorUpdated(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return color(thisKey) 
+
+}
+
+function colorBarchart(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return basicColors[thisKey].initial 
+
+}
+
+
+function numbers_separators(num){
+  return num.toLocaleString('fr-FR', {minimumFractionDigits: 0});
+}
+
+
+
+
+function drawLegend(){
+
+
+
+    var svg = d3.select('svg');
+
+    svg.select('g.legendOrdinal').remove();
+
+    if (manualReusableParameters.caseLegend.value){
+
+        var thisLegendorientation =  manualReusableParameters.legendOrientation.manual_range_value ? manualReusableParameters.legendOrientation.manual_range_value : manualReusableParameters.legendOrientation.initial_range_value;
+
+        var this_inner_padding = manualReusableParameters.inner_padding_legend.value ? manualReusableParameters.inner_padding_legend.value : manualReusableParameters.inner_padding_legend.initial_value;
+
+        svg.append("g")
+        .attr("class", "legendOrdinal")
+        .attr("transform", "translate("+ (width - 100 )+  ",20)");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            color.domain(d3.keys(graphParameters.personalizedColorsObject))
+      }
+
+        var ordinal = d3.scaleOrdinal()
+        .domain(color.domain())
+        .range(color.range());
+
+        var legendOrdinal = d3.legendColor()
+        .orient(thisLegendorientation)
+        .shapeWidth(15)
+        .shapeHeight(15)
+        .shapePadding(this_inner_padding)
+        .scale(ordinal);
+
+
+        svg.select(".legendOrdinal")
+        .call(legendOrdinal);
+
+        var thisElementWidth = Math.round(d3.select('.legendOrdinal').node().getBBox().width);
+        var thisElementHeight = Math.round(d3.select('.legendOrdinal').node().getBBox().height);
+
+        svg.selectAll(".legendOrdinal text.label")
+        .style('font-size', '0.8rem');
+
+        var this_padding_left = manualReusableParameters.padding_left_legend.value ? manualReusableParameters.padding_left_legend.value : 0;
+        var this_padding_top = manualReusableParameters.padding_top_legend.value ? manualReusableParameters.padding_top_legend.value : 0;
+
+        if (manualReusableParameters.caseLegend.manual_range_value){
+            if (manualReusableParameters.caseLegend.manual_range_value == 'topRight'){
+
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth + this_padding_left);
+                var thisElementTopMargin = (20 + this_padding_top);
+
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'topLeft'){
+                var thisElementLeftMargin = 20 + this_padding_left;
+                var thisElementTopMargin = (20 + this_padding_top);
+            }
+
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomLeft'){
+                var thisElementLeftMargin = (20 + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top );
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomRight'){
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top ); 
+            }
+
+        }
+        else{
+            var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+            var thisElementTopMargin = (20 + this_padding_top);
+
+        }
+
+
+        svg.select(".legendOrdinal")
+        .attr("transform", "translate("+ thisElementLeftMargin +  ","+ thisElementTopMargin + ")");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            svg.selectAll(".legendOrdinal g.cell rect").style('fill', function(d){return colorUpdated(d)})
+
+
+        }
+
+    }
+
+}
+
+
+
+
+function changeAxis(xScale, yScale){
+
+
+    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+        moment.locale('fr')
+
+        function thisDateFormat (d){ return moment(d).format('L')}
+
+    }
+    else{
+
+        function thisDateFormat (d){ return d}
+
+    }
+
+
+    if (graphParameters.selected_graph != 'barChartHorizontal'){
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(thisDateFormat);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(numbers_separators);
+
+    }
+
+    else{
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(numbers_separators);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(thisDateFormat);
+
+    }
+
+
+
+
+}
+
+
+function customizeAxis(){
+
+
+  var svg = d3.select('svg');
+
+  svg.select("g.axis--x path").attr('stroke', manualReusableParameters.bottomAxisStroke.manual_range_value)
+
+  svg.select("g.axis--y path").attr('stroke', manualReusableParameters.leftAxisStroke.manual_range_value)
+
+  svg.selectAll("g.axis--x, g.axis--y").selectAll('g.tick line').attr('stroke', manualReusableParameters.ticksStroke.manual_range_value);
+
+
+
+  if (manualReusableParameters.leftTickSize.manual_range_value){
+    if (manualReusableParameters.leftTickSize.manual_range_value == 'small'){var thisLeftTickx1Value = 0  }
+      else if (manualReusableParameters.leftTickSize.manual_range_value == 'fullWidth'){var thisLeftTickx1Value = width  }
+        else if (manualReusableParameters.leftTickSize.manual_range_value == 'invisible'){var thisLeftTickx1Value = -6  }
+      }
+    else {var thisLeftTickx1Value = 0  }
+
+      if (manualReusableParameters.bottomTickSize.manual_range_value){
+        if (manualReusableParameters.bottomTickSize.manual_range_value == 'small'){var thisBottomTickx1Value = 0  }
+          else if (manualReusableParameters.bottomTickSize.manual_range_value == 'fullWidth'){var thisBottomTickx1Value = -height  }
+            else if (manualReusableParameters.bottomTickSize.manual_range_value == 'invisible'){var thisBottomTickx1Value = 6  }
+          }
+        else {var thisBottomTickx1Value = 0  }
+
+          svg.select("g.axis--y").selectAll('g.tick line').attr('x1', thisLeftTickx1Value);
+
+        svg.select("g.axis--x").selectAll('g.tick line').attr('y1', thisBottomTickx1Value);
+
+
+      }
+
+
+      function xAxisLabel(sel, labelText){
+
+
+        if (manualReusableParameters.xAxisLabel.value && manualReusableParameters.xAxisLabelText.value){
+
+          var labelText = manualReusableParameters.xAxisLabelText.value;
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.xAxisLabelPadding.value ? +manualReusableParameters.xAxisLabelPadding.value : 0;
+
+        var this_sel = sel
+        .selectAll('text.xAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel');
+
+        this_sel
+        .merge(this_selE)         
+        .attr("transform",
+          "translate(" + (width/2) + " ," + 
+          (+thisPadding + height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+
+
+      function yAxisLabel(sel, labelText){
+
+        if (manualReusableParameters.yAxisLabel.value && manualReusableParameters.yAxisLabelText.value){
+
+          var labelText = manualReusableParameters.yAxisLabelText.value;
+
+
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.yAxisLabelPadding.value ? +manualReusableParameters.yAxisLabelPadding.value : 0;
+
+
+        var this_sel = sel
+        .selectAll('text.yAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel')
+        .attr("transform", "rotate(-90)")
+        ;
+
+        this_sel
+        .merge(this_selE)         
+        .attr("y", (+thisPadding - margin.left))
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+            function xScaleType(){
+
+                if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                    return d3.scaleTime()
+
+                }
+
+                else{
+
+                    return d3.scaleLinear()
+
+                }
+
+            }
+
+            function recalculateAndTransformValues(data, kValue, dValues) {
+
+                var this_data = _.cloneDeep(data);
+
+                if (manualReusableParameters.trimKValue.value){
+
+                    this_data.forEach(function(d){
+                        d[kValue] = _.trim(d[kValue]);
+
+                    })
+
+                }
+
+                if (_.isEmpty(manualCustomParameters['fieldsToReplace']) == false){
+
+                    for(i in manualCustomParameters['fieldsToReplace'])
+                        if (manualCustomParameters['fieldsToReplace'][i].name && manualCustomParameters['fieldsToReplace'][i].newValue && manualCustomParameters['fieldsToReplace'][i].oldValue){
+
+                            this_data.forEach(function(d){
+
+                                d[manualCustomParameters['fieldsToReplace'][i].name] = d[manualCustomParameters['fieldsToReplace'][i].name] == manualCustomParameters['fieldsToReplace'][i].oldValue ? manualCustomParameters['fieldsToReplace'][i].newValue : d[manualCustomParameters['fieldsToReplace'][i].name];
+
+                            })
+
+
+                        }
+
+                    }
+
+                    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                      moment.locale('fr')
+
+                        this_data.forEach(function(d){
+                            d[manualReusableParameters.dateField.manual_range_value] = moment(d[manualReusableParameters.dateField.manual_range_value], manualReusableParameters.dateFieldFormat.value);
+
+                        })
+
+                    }
+
+                    return this_data
+                }
+
+function responsivefy(svg, width, height) {
+
+    // get container + svg aspect ratio
+    var container = d3.select(svg.node().parentNode),
+        width = parseInt(svg.style('width')),
+        height = parseInt(svg.style("height")),
+        // aspect = width / height;
+        aspect = width / height;
+
+    // add viewBox and preserve aspectratio properties
+    // call resize so that svg resizes on initial page load
+    svg.attr("viewBox", "0 0 " + width + " " + height)
+        .attr("preserveAspectRatio", "xMinYMid")
+        .call(resize);
+
+    // to register multiple listeners for the same event type
+    d3.select(window).on("resize." + container.attr("id"), resize);
+
+    function resize() {
+
+        var targetWidth = parseInt(container.style("width"));
+        var targetHeight = Math.round(targetWidth / aspect);
+
+        svg.attr("width", targetWidth);
+        svg.attr("height", targetHeight);
+
+    }
+}
+
+function add_tooltip_values(this_grouped_data, data, kValue){
+
+
+        this_grouped_data.forEach(function(d) {
+            var o = data.filter(function(e){return e[kValue] ==  d[kValue]})[0];
+        for (i in graphParameters.selected_tooltip){
+            var this_el = graphParameters.selected_tooltip[i]
+            if (d3.keys(d).indexOf(this_el) == -1){
+
+                d[this_el] = o[this_el];
+            }
+        }
+    })
+
+    return this_grouped_data
+
+}
+
+function addCustomCode(){
+
+if (eval(manualReusableParameters.customCode.value))
+    {eval(manualReusableParameters.customCode.value)}
+
+}
+      </script>
+    </body>
+    </html>

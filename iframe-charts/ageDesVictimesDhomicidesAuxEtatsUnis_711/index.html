@@ -1,0 +1,1056 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Age des victimes d'homicides aux Etats-Unis</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+  <link type="text/css" rel="stylesheet" href="https://statics.liberation.fr/newsite/css/fonts.css">
+  <link rel="stylesheet" href="../utilities/css/bulma-custom.css">
+  <link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+
+  <section>
+    <div id="chart">
+      <h3 id="chartTitle"></h3>
+      <div id="varSwitch" class='tags'></div>
+      <svg width="600" height="400"></svg>
+      <footer>
+        <div class="credits">
+          <a href="http://www.liberation.fr/data-nouveaux-formats-six-plus,100538" target="_blank">Six Plus</a>
+        </div>
+        <div class="sources">Source: <span id="chartSource">Libération</span></div>
+      </footer>
+
+    </div>
+  </section>
+
+
+  <!-- JS -->
+  <script src="../utilities/js/jquery-1.10.2.js"></script>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="../utilities/js/d3-annotation.min.js"></script>
+  <script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+  <script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="../utilities/js/moment-with-locales.min.js"></script>
+  <!-- <script src="static/js/app.js"></script> -->
+<script type="text/javascript" src="../utilities/js/iframeResizer.contentWindow.min.js"></script>
+  <script type="text/javascript">
+
+   var margin = {},
+   width,
+   height;
+   var initMargin = {
+    top: 20,
+    right: 20,
+    bottom: 60,
+    left: 40
+  };
+
+
+  var initTotalWidth = 600;
+  var initTotalHeight = 400;
+
+  var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+  var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+  var libeCategoricalColors = ['#e61e49', '#7c7c7c', '#000'];
+
+  var political_colors_obj = {
+    'EXG': "#751719",
+    'FI': "#cd0420",
+    "COM":'#af0e1d',
+    "ECO":'#52ae56',
+    "SOC":'#e6467e',
+    "DVG":'#f46099',
+    "RDG":'#f781b6',
+    'DIV': "#cccccc",
+    'REG': "#666",
+    "REM":'#ffb400',
+    "MDM":'#e85d21',
+    "UDI":'#9f64a2',
+    "DVD":'#026db5',
+    "LR":'#0058a2',
+    "DLF":'#003366',
+    "EXD":'#03034f',
+    "FN":'#000032'
+  };
+
+  var LibePoliticalColors =["#751719", "#cd0420", "#af0e1d", "#52ae56", "#e6467e", "#f46099", "#f781b6", "#cccccc", "#666", "#ffb400", "#e85d21", "#9f64a2", "#026db5", "#0058a2", "#003366", "#03034f", "#000032"];
+
+  var color = d3.scaleOrdinal(libeCategoricalColors);
+
+
+  var categorical_color_sheme = ['libeCategoricalColors', 'LibePoliticalColors', 'schemeDark2', 'schemeAccent', 'schemePastel2', 'schemeSet2', 'schemeSet1', 'schemePastel1', 
+  'schemeCategory10', 'schemeSet3', 'schemePaired', 'schemeCategory20', 'schemeCategory20b', 'schemeCategory20c'];
+
+  var basicColors = {plain:{initial:"#e61e49", personalized:null}, positive:{initial:'#85b4b2', personalized:null}, negative:{initial:"#e61e49", personalized:null}};
+
+
+  var data = [{"age":"moins de 5 ans","Accident":"2634.0","Homicide":"659.0","NC":"2814.0","Naturel":"17968.0","Suicide":"","total":"","ageBin":"moins de 5 ans","POPESTIMATE2015":"39824998.0","Accident_p100K":"6.61","Homicides pour 100 000":"1.65","NC_p100K":"7.07","Naturel_p100K":"45.12","Suicides pour 100 000":"","order":"-1.0"},{"age":"5 - 9 ans","Accident":"748.0","Homicide":"144.0","NC":"65.0","Naturel":"1262.0","Suicide":"4.0","total":"2223.0","ageBin":"5 - 9 ans","POPESTIMATE2015":"40962260.0","Accident_p100K":"1.83","Homicides pour 100 000":"0.35","NC_p100K":"0.16","Naturel_p100K":"3.08","Suicides pour 100 000":"0.01","order":"4.0"},{"age":"10 - 14 ans","Accident":"773.0","Homicide":"166.0","NC":"68.0","Naturel":"1398.0","Suicide":"410.0","total":"2815.0","ageBin":"10 - 14 ans","POPESTIMATE2015":"41211158.0","Accident_p100K":"1.88","Homicides pour 100 000":"0.4","NC_p100K":"0.17","Naturel_p100K":"3.39","Suicides pour 100 000":"0.99","order":"9.0"},{"age":"15 - 19 ans","Accident":"3899.0","Homicide":"1650.0","NC":"261.0","Naturel":"1990.0","Suicide":"2066.0","total":"9866.0","ageBin":"15 - 19 ans","POPESTIMATE2015":"42169420.0","Accident_p100K":"9.25","Homicides pour 100 000":"3.91","NC_p100K":"0.62","Naturel_p100K":"4.72","Suicides pour 100 000":"4.9","order":"14.0"},{"age":"20 - 24 ans","Accident":"8656.0","Homicide":"3255.0","NC":"715.0","Naturel":"3734.0","Suicide":"3440.0","total":"19800.0","ageBin":"20 - 24 ans","POPESTIMATE2015":"45386052.0","Accident_p100K":"19.07","Homicides pour 100 000":"7.17","NC_p100K":"1.58","Naturel_p100K":"8.23","Suicides pour 100 000":"7.58","order":"19.0"},{"age":"25 - 29 ans","Accident":"10033.0","Homicide":"2819.0","NC":"946.0","Naturel":"5803.0","Suicide":"3455.0","total":"23056.0","ageBin":"25 - 29 ans","POPESTIMATE2015":"44802336.0","Accident_p100K":"22.39","Homicides pour 100 000":"6.29","NC_p100K":"2.11","Naturel_p100K":"12.95","Suicides pour 100 000":"7.71","order":"24.0"},{"age":"30 - 34 ans","Accident":"9919.0","Homicide":"2293.0","NC":"1091.0","Naturel":"9405.0","Suicide":"3526.0","total":"26234.0","ageBin":"30 - 34 ans","POPESTIMATE2015":"43235066.0","Accident_p100K":"22.94","Homicides pour 100 000":"5.3","NC_p100K":"2.52","Naturel_p100K":"21.75","Suicides pour 100 000":"8.16","order":"29.0"},{"age":"35 - 39 ans","Accident":"9334.0","Homicide":"1743.0","NC":"1069.0","Naturel":"13775.0","Suicide":"3352.0","total":"29273.0","ageBin":"35 - 39 ans","POPESTIMATE2015":"40625292.0","Accident_p100K":"22.98","Homicides pour 100 000":"4.29","NC_p100K":"2.63","Naturel_p100K":"33.91","Suicides pour 100 000":"8.25","order":"34.0"},{"age":"40 - 44 ans","Accident":"8812.0","Homicide":"1335.0","NC":"1052.0","Naturel":"23200.0","Suicide":"3614.0","total":"38013.0","ageBin":"40 - 44 ans","POPESTIMATE2015":"40313472.0","Accident_p100K":"21.86","Homicides pour 100 000":"3.31","NC_p100K":"2.61","Naturel_p100K":"57.55","Suicides pour 100 000":"8.96","order":"39.0"},{"age":"45 - 49 ans","Accident":"10110.0","Homicide":"1205.0","NC":"1261.0","Naturel":"41217.0","Suicide":"4029.0","total":"57822.0","ageBin":"45 - 49 ans","POPESTIMATE2015":"41602312.0","Accident_p100K":"24.3","Homicides pour 100 000":"2.9","NC_p100K":"3.03","Naturel_p100K":"99.07","Suicides pour 100 000":"9.68","order":"44.0"},{"age":"50 - 54 ans","Accident":"12006.0","Homicide":"1095.0","NC":"1454.0","Naturel":"78279.0","Suicide":"4769.0","total":"97603.0","ageBin":"50 - 54 ans","POPESTIMATE2015":"44579468.0","Accident_p100K":"26.93","Homicides pour 100 000":"2.46","NC_p100K":"3.26","Naturel_p100K":"175.59","Suicides pour 100 000":"10.7","order":"49.0"},{"age":"55 - 59 ans","Accident":"11251.0","Homicide":"870.0","NC":"1343.0","Naturel":"121868.0","Suicide":"4479.0","total":"139811.0","ageBin":"55 - 59 ans","POPESTIMATE2015":"43535710.0","Accident_p100K":"25.84","Homicides pour 100 000":"2.0","NC_p100K":"3.08","Naturel_p100K":"279.93","Suicides pour 100 000":"10.29","order":"54.0"},{"age":"60 - 64 ans","Accident":"8620.0","Homicide":"566.0","NC":"971.0","Naturel":"158556.0","Suicide":"3300.0","total":"172013.0","ageBin":"60 - 64 ans","POPESTIMATE2015":"38077108.0","Accident_p100K":"22.64","Homicides pour 100 000":"1.49","NC_p100K":"2.55","Naturel_p100K":"416.41","Suicides pour 100 000":"8.67","order":"59.0"},{"age":"65 - 69 ans","Accident":"6837.0","Homicide":"376.0","NC":"625.0","Naturel":"192441.0","Suicide":"2458.0","total":"202737.0","ageBin":"65 - 69 ans","POPESTIMATE2015":"32098492.0","Accident_p100K":"21.3","Homicides pour 100 000":"1.17","NC_p100K":"1.95","Naturel_p100K":"599.53","Suicides pour 100 000":"7.66","order":"64.0"},{"age":"70 - 74 ans","Accident":"5714.0","Homicide":"244.0","NC":"409.0","Naturel":"214282.0","Suicide":"1771.0","total":"222420.0","ageBin":"70 - 74 ans","POPESTIMATE2015":"22955552.0","Accident_p100K":"24.89","Homicides pour 100 000":"1.06","NC_p100K":"1.78","Naturel_p100K":"933.46","Suicides pour 100 000":"7.71","order":"69.0"},{"age":"75 - 79 ans","Accident":"6347.0","Homicide":"196.0","NC":"299.0","Naturel":"239326.0","Suicide":"1411.0","total":"247579.0","ageBin":"75 - 79 ans","POPESTIMATE2015":"16239694.0","Accident_p100K":"39.08","Homicides pour 100 000":"1.21","NC_p100K":"1.84","Naturel_p100K":"1473.71","Suicides pour 100 000":"8.69","order":"74.0"},{"age":"80 - 84 ans","Accident":"7980.0","Homicide":"130.0","NC":"244.0","Naturel":"284968.0","Suicide":"1094.0","total":"294416.0","ageBin":"80 - 84 ans","POPESTIMATE2015":"11597820.0","Accident_p100K":"68.81","Homicides pour 100 000":"1.12","NC_p100K":"2.1","Naturel_p100K":"2457.08","Suicides pour 100 000":"9.43","order":"79.0"},{"age":"85 - 89 ans","Accident":"9451.0","Homicide":"79.0","NC":"198.0","Naturel":"318929.0","Suicide":"810.0","total":"329467.0","ageBin":"85 - 89 ans","POPESTIMATE2015":"7728578.0","Accident_p100K":"122.29","Homicides pour 100 000":"1.02","NC_p100K":"2.56","Naturel_p100K":"4126.62","Suicides pour 100 000":"10.48","order":"84.0"},{"age":"90 - 94 ans","Accident":"7348.0","Homicide":"36.0","NC":"115.0","Naturel":"253909.0","Suicide":"358.0","total":"261766.0","ageBin":"90 - 94 ans","POPESTIMATE2015":"3703240.0","Accident_p100K":"198.42","Homicides pour 100 000":"0.97","NC_p100K":"3.11","Naturel_p100K":"6856.4","Suicides pour 100 000":"9.67","order":"89.0"},{"age":"95 - 99 ans","Accident":"2928.0","Homicide":"10.0","NC":"45.0","Naturel":"102871.0","Suicide":"55.0","total":"105909.0","ageBin":"95 - 99 ans","POPESTIMATE2015":"990724.0","Accident_p100K":"295.54","Homicides pour 100 000":"1.01","NC_p100K":"4.54","Naturel_p100K":"10383.42","Suicides pour 100 000":"5.55","order":"94.0"},{"age":"100 ans et plus","Accident":"511.0","Homicide":"1.0","NC":"12.0","Naturel":"22056.0","Suicide":"6.0","total":"22586.0","ageBin":"100 ans et plus","POPESTIMATE2015":"154484.0","Accident_p100K":"330.78","Homicides pour 100 000":"0.65","NC_p100K":"7.77","Naturel_p100K":"14277.21","Suicides pour 100 000":"3.88","order":"99.0"},{"age":"NC","Accident":"50.0","Homicide":"13.0","NC":"162.0","Naturel":"115.0","Suicide":"10.0","total":"350.0","ageBin":"","POPESTIMATE2015":"","Accident_p100K":"","Homicides pour 100 000":"","NC_p100K":"","Naturel_p100K":"","Suicides pour 100 000":"","order":""}];
+
+  var manualReusableParameters = {"rotateXRow":{"value":true,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1,"category":"general"},"chart_width":{"value":600,"type":"slider","label":"Largeur du graphique","initial_value":600,"min":300,"max":800,"activated":1,"category":"general"},"chart_height":{"value":400,"type":"slider","label":"Hauteur du graphique","initial_value":400,"min":200,"max":800,"activated":1,"category":"general"},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_left":{"value":0,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_right":{"value":0,"type":"slider","label":"marge droite","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_top":{"value":11,"type":"slider","label":"marge haute","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"sort_descending":{"value":false,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1,"category":"general"},"invert_order":{"value":false,"type":"checkbox","label":"inverser l'ordre","initial_value":false,"activated":1,"category":"general"},"differentAxisY":{"value":false,"type":"checkbox","label":"Adapter l'axe des Y aux données","initial_value":false,"activated":1,"category":"general"},"rangeX":{"type":"checkInputs","label":"Range X personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":0,"category":"general"},"rangeY":{"type":"checkInputs","label":"Range Y personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":0,"calculated_right_value":7.17,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"general"},"color_field_select":{"value":"schemeDark2","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"schemeDark2","activated":0,"fields":["libeCategoricalColors","LibePoliticalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"],"category":"color"},"persColorsCheck":{"value":false,"type":"persColorsCheck","label":"Couleurs personalisées","initial_value":false,"activated":1,"category":"color"},"indice_100":{"value":false,"type":"checkbox","label":"Démarrer à l'indice 100","initial_value":false,"activated":0,"category":"calculs"},"displayLabel":{"value":false,"type":"checkbox","label":"afficher la valeur","initial_value":false,"activated":1,"category":"labels"},"startEndValues":{"type":"checkInputs","label":"Valeurs de début et de fin","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":0,"category":"filter"},"caseLegend":{"type":"checkSelects","label":"Afficher la légende","range":[{"value":"topRight","label":"En haut à droite"},{"value":"topLeft","label":"En haut à gauche"},{"value":"bottomLeft","label":"En bas à gauche"},{"value":"bottomRight","label":"En bas à droite"}],"initial_range_value":"topRight","manual_range_value":null,"activated":1,"category":"legend"},"padding_left_legend":{"value":0,"type":"slider","label":"marge gauche légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"padding_top_legend":{"value":0,"type":"slider","label":"marge haute légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"legendOrientation":{"type":"simpleSelect","label":"Orientation de la légende","range":[{"value":"vertical","label":"Verticale"},{"value":"horizontal","label":"Horizontale"}],"initial_range_value":"vertical","manual_range_value":null,"category":"legend","dependOn":"caseLegend"},"inner_padding_legend":{"value":2,"type":"slider","label":"Marge intérieure de la légende","initial_value":2,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"leftAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations à gauche","initial_value":10,"min":0,"max":20,"activated":1,"category":"grid"},"bottomAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations en bas","initial_value":5,"min":0,"max":20,"activated":1,"category":"grid"},"leftAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe gauche","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"bottomAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe bas","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"ticksStroke":{"type":"simpleSelect","label":"Couleur des graduations","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#e4e4e4","activated":1,"category":"grid"},"leftTickSize":{"type":"simpleSelect","label":"Taille des graduations horizontales","range":[{"value":"small","label":"petites"},{"value":"fullWidth","label":"largeur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"fullWidth","activated":1,"category":"grid"},"bottomTickSize":{"type":"simpleSelect","label":"Taille des graduations verticales","range":[{"value":"small","label":"petites"},{"value":"fullHeight","label":"hauteur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"small","activated":1,"category":"grid"},"yAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe gauche","initial_value":false,"activated":1,"category":"labels"},"xAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe bas","initial_value":false,"activated":1,"category":"labels"},"yAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe gauche","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe bas","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"xAxisLabel"},"yAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe gauche","category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe bas","category":"labels","activated":false,"dependOn":"xAxisLabel"},"trimKValue":{"value":true,"type":"checkbox","label":"Supprimer les espaces inutiles","initial_value":true,"activated":1,"category":"textRemplacement"},"dateField":{"value":false,"type":"checkSelects","label":"Y a-t-il un champ date ?","range":"selectedFields","initial_range_value":"topRight","manual_range_value":null,"initial_value":false,"activated":1,"category":"textRemplacement"},"dateFieldFormat":{"value":"DD/MM/YYYY","initial_value":"DD/MM/YYYY","type":"simpleInputs","label":"Format de date","category":"textRemplacement","activated":false,"dependOn":"dateField"},"groupingFunction":{"type":"simpleSelect","label":"Fonction de réduction des données","range":[{"value":"sum","label":"Somme"},{"value":"mean","label":"moyenne"},{"value":"median","label":"médianne"}],"initial_range_value":null,"manual_range_value":"sum","activated":1,"category":"calculs"}};
+
+  var graphParameters = {"selected_xRows":["age"],"selected_yRows":["Homicides pour 100 000"],"selected_size":[],"selected_color":[],"selected_label":[],"personalizedColorsObject":{},"selectedColorScheme":"libeCategoricalColors","additionnalParam":"","selected_graph":"barChart","chartTitle":"Age des victimes d'homicides aux Etats-Unis","chartSource":"NCHS 2015","annotations":[{"note":{"label":"Les 20 -35 ans sont les plus touchés","title":"","align":"right","wrap":150},"x":184,"y":76,"dy":5,"dx":254,"subject":{"radius":70.91168824543136},"functionName":"annotationCalloutCircle","color":"#3c3c3b","index":1,"disable":[]}]};
+
+  var manualCustomParameters = {"fieldsToReplace":[]};
+
+  color = findColorsScheme(graphParameters.selectedColorScheme);
+
+
+  graphParameters.annotations.forEach(function(d){
+
+    d.type = d3[d.functionName];
+
+
+  })
+
+  var parametersType = [{
+    selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+    {selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+    {selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+    {selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+    {selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+    ];
+
+    var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+
+    var parseTime = d3.timeParse('%Y/%m/%d');
+
+    d3.select("#chart")
+    .attr("class", graphParameters.selected_graph);
+
+    d3.select("#chartTitle")
+    .text(graphParameters['chartTitle']);
+
+
+        d3.select("#chartSource")
+    .text(graphParameters['chartSource']);
+
+    function initChart() {
+
+      var svg = d3.select("svg")
+      .call(responsivefy);
+
+      margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 40
+      };
+
+      width = +svg.attr("width") - margin.left - margin.right;
+      height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+
+      var g = svg.append("g")
+      .attr('class', 'graphContainer')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--y")
+      .attr('transform', 'translate(0,0)');
+
+      g.append("g")
+      .attr('class', 'innerGraph');
+
+    }
+
+
+    var makeAnnotations_ = d3.annotation()
+    .editMode(false)
+  // .type(annotationType)
+  ;
+
+
+  var annotationGroup = d3.select("#chart svg")
+  .append("g")
+  .attr("class", "annotation-group");
+
+
+  var annotations = graphParameters.annotations ? graphParameters.annotations : [];
+
+
+  function makeAnnotation(){
+
+
+
+    for (i in makeAnnotations_.annotations()){
+
+      var d = makeAnnotations_.annotations()[i];
+
+// console.log(d);
+// console.log(i);
+
+annotations[i].x = d.x;
+annotations[i].y = d.y;
+annotations[i].dx = d.dx;
+annotations[i].dy = d.dy;
+
+}
+
+makeAnnotations_
+.annotations(annotations)
+
+d3.select("#chart svg g.annotation-group")
+.call(makeAnnotations_);
+
+d3.select(".annotation-group").node().parentNode.appendChild(d3.select(".annotation-group").node())
+
+}
+
+
+function makeBarchart(data) {
+
+    var kValue = graphParameters['selected_xRows'][0];
+    var dValue = graphParameters['selected_yRows'][0];
+    var dValues = graphParameters['selected_yRows'];
+
+
+    data = recalculateAndTransformValues(data, kValue, dValues)
+
+
+    data.forEach(function(d) {
+        d[dValue] = formatNumbers(d[dValue]);
+        for (i in dValues){
+
+            if (manualReusableParameters.dateField.value == false ||  dValues[i] != manualReusableParameters.dateField.manual_range_value){
+                d[dValues[i]] = formatNumbers(d[dValues[i]]);
+            }
+        }
+    })
+
+    var svg = d3.select("svg");
+    var g = svg.select('g.graphContainer');
+    var g_inner = g.select('g.innerGraph');
+
+    updateParameters();
+
+    // var this_grouped_data = data.map(function(d) { return d.this_key; })
+    // .map(function(d){return {key:d, value: d3.sum(data.filter(function(e){return e.this_key == d}), function(e){return e.this_value})}});
+
+    this_grouped_data = groupbyKVMultiple(data, kValue, dValues, d3[manualReusableParameters.groupingFunction.manual_range_value ? manualReusableParameters.groupingFunction.manual_range_value : manualReusableParameters.groupingFunction.initial_range_value]);
+    this_grouped_data = this_grouped_data.filter(function(d) { return d[kValue] != ''});
+
+    if (manualReusableParameters.differentAxisY.value ==1){
+    manualReusableParameters.rangeY.calculated_left_value =  d3.min(this_grouped_data, function(d) { return d[dValue]});
+    manualReusableParameters.rangeY.calculated_right_value =  d3.max(this_grouped_data, function(d) { return d[dValue]});
+
+    }
+    else{
+    manualReusableParameters.rangeY.calculated_left_value =  d3.min(this_grouped_data, function(d) { return d3.min(d3.entries(d).filter(function(k){ return dValues.indexOf(k.key) != -1}).map(function(v) {return v.value}))});
+    manualReusableParameters.rangeY.calculated_right_value =  d3.max(this_grouped_data, function(d) { return d3.max(d3.entries(d).filter(function(k){ return dValues.indexOf(k.key) != -1}).map(function(v) {return v.value}))});
+
+    }
+
+
+
+    var thisYMin = manualReusableParameters.rangeY.value == false ?  manualReusableParameters.rangeY.calculated_left_value : manualReusableParameters.rangeY.manual_left_value ? manualReusableParameters.rangeY.manual_left_value : manualReusableParameters.rangeY.calculated_left_value;
+    var thisYMax = manualReusableParameters.rangeY.value == false ?  manualReusableParameters.rangeY.calculated_right_value : manualReusableParameters.rangeY.manual_right_value ? manualReusableParameters.rangeY.manual_right_value : manualReusableParameters.rangeY.calculated_right_value;
+
+    // reGenerateParameters();
+
+if (manualReusableParameters.sort_descending.value == 1){
+    this_grouped_data = this_grouped_data.sort(function(a, b) { return b[dValue] - a[dValue]});
+}
+else{
+
+if (manualReusableParameters.invert_order.value == 1){
+this_grouped_data = this_grouped_data.reverse(function(d) { return d[kValue]; });
+
+}
+
+else{
+    this_grouped_data = this_grouped_data;
+}
+
+}
+
+    xScale = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+
+    yScale = d3.scaleLinear().rangeRound([height,  0]);
+
+    xScale.domain(this_grouped_data.map(function(d) { return d[kValue];}));
+    yScale.domain([Math.min(thisYMin, 0), thisYMax]);
+
+
+    changeAxis(xScale, yScale)
+
+    // customizeAxis()
+
+  // g.select("g.axis.axis--x")
+  // .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (height + manualReusableParameters.padding_top.value) +")")
+
+    g.select('g.innerGraph')
+    .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (manualReusableParameters.padding_top.value) +")");
+
+
+
+    g.select("g.axis.axis--y")
+    .attr("transform", "translate(" + (manualReusableParameters.padding_left.value) + "," + (manualReusableParameters.padding_top.value) +")")
+    // .attr('transform', 'translate(0,0)')
+    .call(axis_left);
+
+    var all_bars = g_inner.selectAll("g.bar").data(this_grouped_data);
+
+    all_bars
+    .transition()
+    .duration(200)
+    .attr('transform', function(d){return 'translate(' +  xScale(d[kValue]) + ','+ yScale(Math.max(0, d[dValue])) + ')'})
+    .select('rect')
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", xScale.bandwidth())
+    .attr("height", function(d) { return Math.abs(yScale(0) - yScale(d[dValue])); })
+    .style('fill', function(d){ return thisYMin >=0 ? colorBarchart('plain') :  d[dValue] >=0  ? colorBarchart('positive') : colorBarchart('negative')})
+
+    all_bars.exit().transition().duration(200).remove();
+
+    var all_barsE = all_bars
+    .enter()
+    .append('g')
+    .attr('class', 'bar')
+    .attr('transform', function(d){return 'translate(' +  xScale(d[kValue]) + ','+ yScale(Math.max(0, d[dValue])) + ')'});
+
+    all_barsE
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", xScale.bandwidth())
+    .attr("height", function(d) { return Math.abs(yScale(0) - yScale(d[dValue])); })
+    .style('fill', function(d){ return thisYMin >=0 ? colorBarchart('plain') :  d[dValue] >=0  ? colorBarchart('positive') : colorBarchart('negative')})
+    .on('mouseover', function(d, i){ show_tooltip(d)})
+    .on('mouseout', function(d){ hide_tooltip()});
+
+    all_barsE
+    .append("text")
+    .attr("dy", ".75em")
+    .attr("text-anchor", "middle")
+    .attr("fill", "#333")
+    .style('font-size', '12px')
+    .style('pointer-events', 'none');
+
+    all_bars
+    .merge(all_barsE)
+    .select("text")
+    .attr("y", function(d){return Math.abs(yScale(0) - yScale(d[dValue])) > 14 ?  (d[dValue] > 0 ? 6 :  Math.abs(yScale(0) - yScale(d[dValue])) - 18) :  -12})
+    .attr("x",( xScale.bandwidth()/2))
+    .text(function(d) { return manualReusableParameters.displayLabel.value == true ? String(_.round(d[dValue], 2)).replace('.', ',') : ''});
+
+    g.select("g.axis.axis--x")
+    .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (height + manualReusableParameters.padding_top.value) + ")")
+    .call(axis_bottom)
+    .selectAll("text")
+    .style("text-anchor", "middle")
+    .attr("dx", "0em")
+    .attr("dy", "0.7em")
+    .attr("transform", "rotate(0)")
+    ;
+
+    if (manualReusableParameters.rotateXRow.value == true){
+
+        g.select("g.axis.axis--x")
+        .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (height + manualReusableParameters.padding_top.value) + ")")
+        .selectAll("g.tick")
+        .select("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-40)");
+
+    }
+
+    customizeAxis()
+
+
+    drawLegend() 
+
+}
+
+initChart();
+
+makeBarchart(data);
+
+
+
+
+
+makeAnnotation();
+
+d3.select("svg").call(responsivefy)
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+  var d = d.data ? d.data : d;
+
+  if (d){
+
+    d3.select("#tooltip").style('display', 'block');
+
+    var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+    var dx = d3.event.pageX;
+    var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+        var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+        graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+
+
+         );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+      d3.select("#tooltip")
+      .classed('is-active', false);
+
+      d3.select("#tooltip")
+      .style('display', 'none');
+
+    }
+
+    function updateParameters(){
+
+      var svg = d3.select("svg");
+
+      svg
+      .attr('width', manualReusableParameters.chart_width.value);
+
+      // d3.select('div#chart')
+      // .style('width', manualReusableParameters.chart_width.value);
+
+      svg.attr("width", manualReusableParameters.chart_width.value);
+
+      svg
+      .attr('height', manualReusableParameters.chart_height.value);
+
+      width = manualReusableParameters.chart_width.value - initMargin.left - initMargin.right;
+
+      height = manualReusableParameters.chart_height.value - initMargin.top - initMargin.bottom;
+
+      width = width  - manualReusableParameters.padding_left.value - manualReusableParameters.padding_right.value;
+      height = height - manualReusableParameters.padding_bottom.value- manualReusableParameters.padding_top.value;
+
+    }
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+  var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+  new_n = +new_n;
+
+  return new_n  
+
+}
+
+function arrayIfObject(objectData) {
+
+  var arrayData = objectData.map(function(d) { return d3.values(d) });
+  arrayData.unshift(d3.keys(objectData[0]));
+  return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+  var objectData = arrayData.slice(1).map(function(d) {
+    var this_object = {}
+    for (i in arrayData[0]) {
+      this_object[arrayData[0][i]] = d[i];
+    }
+    return this_object
+  })
+  return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+})
+  .entries(data)
+  return result
+}
+
+function groupbyKVMultiple(data, key, values, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) {
+    var those_values = {};
+    for (i in values){
+      var this_value = values[i];
+      those_values[this_value] = this_function(v, function(e) { return e[this_value]} )
+    }
+
+    return { those_values}
+  })
+  .entries(data);
+
+  result = result.map(function(d){ return _.assign({[key]: d['key'] }, d['value']['those_values'])});
+
+  return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+
+    new_data.push(data.map(function(d) {
+      return {
+        x_value: +d[kValue],
+        name: v,
+        y_value: +d[v]
+      }
+    }));
+  }
+
+  return new_data
+}
+
+
+
+function prepareLineChartIndice100Growth(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:_.round((new_data_next[i].y_value * ((100 + (formatNumbers(d[v])))/100)), 2)});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+
+function prepareLineChartIndice100Value(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    // var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+    var new_data_next = [];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:(_.round(formatNumbers(100*d[v])/formatNumbers(data[0][v]), 2))});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+function checkIfpercentageInArray(data, dValues){
+
+  var chained_data = _.chain(d3.entries(data))
+  .map(function(d){return d.value})
+  .map(function(d){return dValues.map(function(e){return d[e]})})
+  .value()
+
+  var thisMinMAx = [d3.min(chained_data, function(d){return d3.min(d, function(e){return +e})}), d3.max(chained_data, function(d){return d3.max(d, function(e){return +e})})];
+
+  if (thisMinMAx[0] > -100 && thisMinMAx[0] < 100 && thisMinMAx[1] > -100 && thisMinMAx[1] < 100){
+    return true
+  }
+
+  return false
+
+}
+
+
+function emptyChart(){
+
+  d3.select('#varSwitch').selectAll("*").remove();
+  d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+
+function findColorsScheme(thisSelection){
+
+  var this_domain = color.domain();
+
+  var this_color = thisSelection == 'libeCategoricalColors' ?  d3.scaleOrdinal(libeCategoricalColors) : thisSelection == 'LibePoliticalColors' ?  d3.scaleOrdinal(LibePoliticalColors) : d3.scaleOrdinal(d3[manualReusableParameters.color_field_select.value]);
+
+  this_color.domain(this_domain);
+
+  return this_color;
+}
+
+function colorUpdated(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return color(thisKey) 
+
+}
+
+function colorBarchart(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return basicColors[thisKey].initial 
+
+}
+
+
+function numbers_separators(num){
+  return num.toLocaleString('fr-FR', {minimumFractionDigits: 0});
+}
+
+
+
+
+function drawLegend(){
+
+
+
+  var svg = d3.select('svg');
+
+  svg.select('g.legendOrdinal').remove();
+
+  if (manualReusableParameters.caseLegend.value){
+
+    var thisLegendorientation =  manualReusableParameters.legendOrientation.manual_range_value ? manualReusableParameters.legendOrientation.manual_range_value : manualReusableParameters.legendOrientation.initial_range_value;
+
+    var this_inner_padding = manualReusableParameters.inner_padding_legend.value ? manualReusableParameters.inner_padding_legend.value : manualReusableParameters.inner_padding_legend.initial_value;
+
+    svg.append("g")
+    .attr("class", "legendOrdinal")
+    .attr("transform", "translate("+ (width - 100 )+  ",20)");
+
+    var ordinal = d3.scaleOrdinal()
+    .domain(color.domain())
+    .range(color.range());
+
+    var legendOrdinal = d3.legendColor()
+    .orient(thisLegendorientation)
+    .shapeWidth(15)
+    .shapeHeight(15)
+    .shapePadding(this_inner_padding)
+    .scale(ordinal);
+
+
+    svg.select(".legendOrdinal")
+    .call(legendOrdinal);
+
+    var thisElementWidth = Math.round(d3.select('.legendOrdinal').node().getBBox().width);
+    var thisElementHeight = Math.round(d3.select('.legendOrdinal').node().getBBox().height);
+
+    svg.selectAll(".legendOrdinal text.label")
+    .style('font-size', '0.8rem');
+
+    var this_padding_left = manualReusableParameters.padding_left_legend.value ? manualReusableParameters.padding_left_legend.value : 0;
+    var this_padding_top = manualReusableParameters.padding_top_legend.value ? manualReusableParameters.padding_top_legend.value : 0;
+
+    if (manualReusableParameters.caseLegend.manual_range_value){
+      if (manualReusableParameters.caseLegend.manual_range_value == 'topRight'){
+
+        var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth + this_padding_left);
+        var thisElementTopMargin = (20 + this_padding_top);
+
+      }
+      else if (manualReusableParameters.caseLegend.manual_range_value == 'topLeft'){
+        var thisElementLeftMargin = 20 + this_padding_left;
+        var thisElementTopMargin = (20 + this_padding_top);
+      }
+
+      else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomLeft'){
+        var thisElementLeftMargin = (20 + this_padding_left);
+        var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top );
+      }
+      else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomRight'){
+        var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+        var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top ); 
+      }
+
+    }
+    else{
+      var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+      var thisElementTopMargin = (20 + this_padding_top);
+
+    }
+
+
+    svg.select(".legendOrdinal")
+    .attr("transform", "translate("+ thisElementLeftMargin +  ","+ thisElementTopMargin + ")");
+
+    if (manualReusableParameters.persColorsCheck.value){
+
+      svg.selectAll(".legendOrdinal g.cell rect").style('fill', function(d){return colorUpdated(d)})
+
+
+    }
+
+  }
+
+}
+
+
+
+
+function changeAxis(xScale, yScale){
+
+
+  axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(function(d){return d});
+  axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(numbers_separators);
+
+
+
+}
+
+
+function customizeAxis(){
+
+
+  var svg = d3.select('svg');
+
+  svg.select("g.axis--x path").attr('stroke', manualReusableParameters.bottomAxisStroke.manual_range_value)
+
+  svg.select("g.axis--y path").attr('stroke', manualReusableParameters.leftAxisStroke.manual_range_value)
+
+  svg.selectAll("g.axis--x, g.axis--y").selectAll('g.tick line').attr('stroke', manualReusableParameters.ticksStroke.manual_range_value);
+
+
+
+  if (manualReusableParameters.leftTickSize.manual_range_value){
+    if (manualReusableParameters.leftTickSize.manual_range_value == 'small'){var thisLeftTickx1Value = 0  }
+      else if (manualReusableParameters.leftTickSize.manual_range_value == 'fullWidth'){var thisLeftTickx1Value = width  }
+        else if (manualReusableParameters.leftTickSize.manual_range_value == 'invisible'){var thisLeftTickx1Value = -6  }
+      }
+    else {var thisLeftTickx1Value = 0  }
+
+      if (manualReusableParameters.bottomTickSize.manual_range_value){
+        if (manualReusableParameters.bottomTickSize.manual_range_value == 'small'){var thisBottomTickx1Value = 0  }
+          else if (manualReusableParameters.bottomTickSize.manual_range_value == 'fullWidth'){var thisBottomTickx1Value = -height  }
+            else if (manualReusableParameters.bottomTickSize.manual_range_value == 'invisible'){var thisBottomTickx1Value = 6  }
+          }
+        else {var thisBottomTickx1Value = 0  }
+
+          svg.select("g.axis--y").selectAll('g.tick line').attr('x1', thisLeftTickx1Value);
+
+        svg.select("g.axis--x").selectAll('g.tick line').attr('y1', thisBottomTickx1Value);
+
+
+      }
+
+
+      function xAxisLabel(sel, labelText){
+
+
+        if (manualReusableParameters.xAxisLabel.value && manualReusableParameters.xAxisLabelText.value){
+
+          var labelText = manualReusableParameters.xAxisLabelText.value;
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.xAxisLabelPadding.value ? +manualReusableParameters.xAxisLabelPadding.value : 0;
+
+        var this_sel = sel
+        .selectAll('text.xAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel');
+
+        this_sel
+        .merge(this_selE)         
+        .attr("transform",
+          "translate(" + (width/2) + " ," + 
+          (+thisPadding + height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+
+
+      function yAxisLabel(sel, labelText){
+
+        if (manualReusableParameters.yAxisLabel.value && manualReusableParameters.yAxisLabelText.value){
+
+          var labelText = manualReusableParameters.yAxisLabelText.value;
+
+
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.yAxisLabelPadding.value ? +manualReusableParameters.yAxisLabelPadding.value : 0;
+
+
+        var this_sel = sel
+        .selectAll('text.yAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel')
+        .attr("transform", "rotate(-90)")
+        ;
+
+        this_sel
+        .merge(this_selE)         
+        .attr("y", (+thisPadding - margin.left))
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+            function xScaleType(){
+
+                if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                    return d3.scaleTime()
+
+                }
+
+                else{
+
+                    return d3.scaleLinear()
+
+                }
+
+            }
+
+            function recalculateAndTransformValues(data, kValue, dValues) {
+
+                var this_data = _.cloneDeep(data);
+
+                if (manualReusableParameters.trimKValue.value){
+
+                    this_data.forEach(function(d){
+                        d[kValue] = _.trim(d[kValue]);
+
+                    })
+
+                }
+
+                if (_.isEmpty(manualCustomParameters['fieldsToReplace']) == false){
+
+                    for(i in manualCustomParameters['fieldsToReplace'])
+                        if (manualCustomParameters['fieldsToReplace'][i].name && manualCustomParameters['fieldsToReplace'][i].newValue && manualCustomParameters['fieldsToReplace'][i].oldValue){
+
+                            this_data.forEach(function(d){
+
+                                d[manualCustomParameters['fieldsToReplace'][i].name] = d[manualCustomParameters['fieldsToReplace'][i].name] == manualCustomParameters['fieldsToReplace'][i].oldValue ? manualCustomParameters['fieldsToReplace'][i].newValue : d[manualCustomParameters['fieldsToReplace'][i].name];
+
+                            })
+
+
+                        }
+
+                    }
+
+                    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                        this_data.forEach(function(d){
+                            d[manualReusableParameters.dateField.manual_range_value] = moment(d[manualReusableParameters.dateField.manual_range_value], manualReusableParameters.dateFieldFormat.value);
+
+                        })
+
+                    }
+
+                    return this_data
+                }
+
+function responsivefy(svg, width, height) {
+
+    // get container + svg aspect ratio
+    var container = d3.select(svg.node().parentNode),
+        width = parseInt(svg.style('width')),
+        height = parseInt(svg.style("height")),
+        // aspect = width / height;
+        aspect = width / height;
+
+    // add viewBox and preserve aspectratio properties
+    // call resize so that svg resizes on initial page load
+    svg.attr("viewBox", "0 0 " + width + " " + height)
+        .attr("preserveAspectRatio", "xMinYMid")
+        .call(resize);
+
+    // to register multiple listeners for the same event type
+    d3.select(window).on("resize." + container.attr("id"), resize);
+
+    function resize() {
+
+        var targetWidth = parseInt(container.style("width"));
+        var targetHeight = Math.round(targetWidth / aspect);
+
+        svg.attr("width", targetWidth);
+        svg.attr("height", targetHeight);
+
+    }
+}
+
+
+
+
+      </script>
+    </body>
+    </html>

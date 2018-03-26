@@ -1,0 +1,1185 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consommation du Bitcoin en Gigawatt  /heure</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+  <link type="text/css" rel="stylesheet" href="https://statics.liberation.fr/newsite/css/fonts.css">
+  <link rel="stylesheet" href="../utilities/css/bulma-custom.css">
+  <link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+
+  <section>
+    <div id="chart">
+      <h3 id="chartTitle"></h3>
+      <div id="varSwitch" class='tags'></div>
+      <svg width="600" height="400"></svg>
+      <footer>
+        <div class="credits">
+          <a href="http://www.liberation.fr/data-nouveaux-formats-six-plus,100538" target="_blank">Six Plus</a>
+        </div>
+        <div class="sources">Source: <span id="chartSource">Libération</span></div>
+      </footer>
+
+    </div>
+  </section>
+
+
+  <!-- JS -->
+  <script src="../utilities/js/jquery-1.10.2.js"></script>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="../utilities/js/d3-annotation.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
+  <script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+  <script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="../utilities/js/moment-with-locales.min.js"></script>
+  <!-- <script src="static/js/app.js"></script> -->
+<script type="text/javascript" src="../utilities/js/iframeResizer.contentWindow.min.js"></script>
+  <script type="text/javascript">
+
+   var margin = {},
+   width,
+   height;
+   var initMargin = {
+    top: 20,
+    right: 20,
+    bottom: 60,
+    left: 40
+  };
+
+
+  var initTotalWidth = 600;
+  var initTotalHeight = 400;
+
+  var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+  var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+  var libeCategoricalColors = ['#e61e49', '#7c7c7c', '#000'];
+
+  var political_colors_obj = {
+    'EXG': "#751719",
+    'FI': "#cd0420",
+    "COM":'#af0e1d',
+    "ECO":'#52ae56',
+    "SOC":'#e6467e',
+    "DVG":'#f46099',
+    "RDG":'#f781b6',
+    'DIV': "#cccccc",
+    'REG': "#666",
+    "REM":'#ffb400',
+    "MDM":'#e85d21',
+    "UDI":'#9f64a2',
+    "DVD":'#026db5',
+    "LR":'#0058a2',
+    "DLF":'#003366',
+    "EXD":'#03034f',
+    "FN":'#000032'
+  };
+
+  var LibePoliticalColors =["#751719", "#cd0420", "#af0e1d", "#52ae56", "#e6467e", "#f46099", "#f781b6", "#cccccc", "#666", "#ffb400", "#e85d21", "#9f64a2", "#026db5", "#0058a2", "#003366", "#03034f", "#000032"];
+
+  var color = d3.scaleOrdinal(libeCategoricalColors);
+
+
+  var categorical_color_sheme = ['libeCategoricalColors', 'LibePoliticalColors', 'schemeDark2', 'schemeAccent', 'schemePastel2', 'schemeSet2', 'schemeSet1', 'schemePastel1', 
+  'schemeCategory10', 'schemeSet3', 'schemePaired', 'schemeCategory20', 'schemeCategory20b', 'schemeCategory20c'];
+
+  var basicColors = {plain:{initial:"#e61e49", personalized:null}, positive:{initial:'#85b4b2', personalized:null}, negative:{initial:"#e61e49", personalized:null}};
+
+
+  var data = [{"Date":"12/28/2017","consommation":"36949"},{"Date":"12/27/2017","consommation":"37108"},{"Date":"12/26/2017","consommation":"37156"},{"Date":"12/25/2017","consommation":"37170"},{"Date":"12/24/2017","consommation":"37126"},{"Date":"12/23/2017","consommation":"37019"},{"Date":"12/22/2017","consommation":"36749"},{"Date":"12/21/2017","consommation":"36318"},{"Date":"12/20/2017","consommation":"35767"},{"Date":"12/19/2017","consommation":"35137"},{"Date":"12/18/2017","consommation":"34863"},{"Date":"12/17/2017","consommation":"34960"},{"Date":"12/16/2017","consommation":"34342"},{"Date":"12/15/2017","consommation":"33734"},{"Date":"12/14/2017","consommation":"33176"},{"Date":"12/13/2017","consommation":"32728"},{"Date":"12/12/2017","consommation":"32715"},{"Date":"12/11/2017","consommation":"32684"},{"Date":"12/10/2017","consommation":"32565"},{"Date":"12/09/2017","consommation":"32562"},{"Date":"12/08/2017","consommation":"32530"},{"Date":"12/07/2017","consommation":"32556"},{"Date":"12/06/2017","consommation":"32363"},{"Date":"12/05/2017","consommation":"31961"},{"Date":"12/04/2017","consommation":"31602"},{"Date":"12/03/2017","consommation":"31253"},{"Date":"12/02/2017","consommation":"31049"},{"Date":"12/01/2017","consommation":"30990"},{"Date":"11/30/2017","consommation":"30592"},{"Date":"11/29/2017","consommation":"30287"},{"Date":"11/28/2017","consommation":"30245"},{"Date":"11/27/2017","consommation":"30226"},{"Date":"11/26/2017","consommation":"30138"},{"Date":"11/25/2017","consommation":"30156"},{"Date":"11/24/2017","consommation":"30133"},{"Date":"11/23/2017","consommation":"29864"},{"Date":"11/22/2017","consommation":"29518"},{"Date":"11/21/2017","consommation":"29244"},{"Date":"11/20/2017","consommation":"29052"},{"Date":"11/19/2017","consommation":"28856"},{"Date":"11/18/2017","consommation":"28671"},{"Date":"11/17/2017","consommation":"28476"},{"Date":"11/16/2017","consommation":"28248"},{"Date":"11/15/2017","consommation":"27891"},{"Date":"11/14/2017","consommation":"27601"},{"Date":"11/13/2017","consommation":"27282"},{"Date":"11/12/2017","consommation":"27054"},{"Date":"11/11/2017","consommation":"26777"},{"Date":"11/10/2017","consommation":"26558"},{"Date":"11/09/2017","consommation":"26274"},{"Date":"11/08/2017","consommation":"26046"},{"Date":"11/07/2017","consommation":"25757"},{"Date":"11/06/2017","consommation":"25541"},{"Date":"11/05/2017","consommation":"25255"},{"Date":"11/04/2017","consommation":"25021"},{"Date":"11/03/2017","consommation":"24734"},{"Date":"11/02/2017","consommation":"24515"},{"Date":"11/01/2017","consommation":"24250"},{"Date":"10/31/2017","consommation":"24054"},{"Date":"10/30/2017","consommation":"23818"},{"Date":"10/29/2017","consommation":"23647"},{"Date":"10/28/2017","consommation":"23433"},{"Date":"10/27/2017","consommation":"23279"},{"Date":"10/26/2017","consommation":"23072"},{"Date":"10/25/2017","consommation":"22910"},{"Date":"10/24/2017","consommation":"22707"},{"Date":"10/23/2017","consommation":"22504"},{"Date":"10/22/2017","consommation":"22345"},{"Date":"10/21/2017","consommation":"22135"},{"Date":"10/20/2017","consommation":"21965"},{"Date":"10/19/2017","consommation":"21753"},{"Date":"10/18/2017","consommation":"21593"},{"Date":"10/17/2017","consommation":"21394"},{"Date":"10/16/2017","consommation":"21240"},{"Date":"10/15/2017","consommation":"21033"},{"Date":"10/14/2017","consommation":"20872"},{"Date":"10/13/2017","consommation":"20669"},{"Date":"10/12/2017","consommation":"20517"},{"Date":"10/11/2017","consommation":"20331"},{"Date":"10/10/2017","consommation":"20171"},{"Date":"10/09/2017","consommation":"20034"},{"Date":"10/08/2017","consommation":"19870"},{"Date":"10/07/2017","consommation":"19750"},{"Date":"10/06/2017","consommation":"19592"},{"Date":"10/05/2017","consommation":"19477"},{"Date":"10/04/2017","consommation":"19324"},{"Date":"10/03/2017","consommation":"19211"},{"Date":"10/02/2017","consommation":"19058"},{"Date":"10/01/2017","consommation":"18904"},{"Date":"9/30/2017","consommation":"18792"},{"Date":"9/29/2017","consommation":"18640"},{"Date":"9/28/2017","consommation":"18531"},{"Date":"9/27/2017","consommation":"18381"},{"Date":"9/26/2017","consommation":"18274"},{"Date":"9/25/2017","consommation":"18136"},{"Date":"9/24/2017","consommation":"18001"},{"Date":"9/23/2017","consommation":"17907"},{"Date":"9/22/2017","consommation":"17774"},{"Date":"9/21/2017","consommation":"17680"},{"Date":"9/20/2017","consommation":"17544"},{"Date":"9/19/2017","consommation":"17437"},{"Date":"9/18/2017","consommation":"17302"},{"Date":"9/17/2017","consommation":"17164"},{"Date":"9/16/2017","consommation":"17075"},{"Date":"9/15/2017","consommation":"16946"},{"Date":"9/14/2017","consommation":"16859"},{"Date":"9/13/2017","consommation":"16803"},{"Date":"9/12/2017","consommation":"16732"},{"Date":"9/11/2017","consommation":"16651"},{"Date":"9/10/2017","consommation":"16570"},{"Date":"9/09/2017","consommation":"16697"},{"Date":"9/08/2017","consommation":"16693"},{"Date":"9/07/2017","consommation":"16644"},{"Date":"9/06/2017","consommation":"16648"},{"Date":"9/05/2017","consommation":"16546"},{"Date":"9/04/2017","consommation":"16327"},{"Date":"9/03/2017","consommation":"16362"},{"Date":"9/02/2017","consommation":"16259"},{"Date":"9/01/2017","consommation":"16368"},{"Date":"8/31/2017","consommation":"16374"},{"Date":"8/30/2017","consommation":"16248"},{"Date":"8/29/2017","consommation":"16224"},{"Date":"8/28/2017","consommation":"16362"},{"Date":"8/27/2017","consommation":"16304"},{"Date":"8/26/2017","consommation":"16255"},{"Date":"8/25/2017","consommation":"16225"},{"Date":"8/24/2017","consommation":"16150"},{"Date":"8/23/2017","consommation":"16050"},{"Date":"8/22/2017","consommation":"16028"},{"Date":"8/21/2017","consommation":"16101"},{"Date":"8/20/2017","consommation":"16057"},{"Date":"8/19/2017","consommation":"15957"},{"Date":"8/18/2017","consommation":"16041"},{"Date":"8/17/2017","consommation":"16023"},{"Date":"8/16/2017","consommation":"15986"},{"Date":"8/15/2017","consommation":"16016"},{"Date":"8/14/2017","consommation":"15914"},{"Date":"8/13/2017","consommation":"15768"},{"Date":"8/12/2017","consommation":"15655"},{"Date":"8/11/2017","consommation":"15495"},{"Date":"8/10/2017","consommation":"15405"},{"Date":"8/09/2017","consommation":"15429"},{"Date":"8/08/2017","consommation":"15423"},{"Date":"8/07/2017","consommation":"15436"},{"Date":"8/06/2017","consommation":"15461"},{"Date":"8/05/2017","consommation":"15418"},{"Date":"8/04/2017","consommation":"15311"},{"Date":"8/03/2017","consommation":"15212"},{"Date":"8/02/2017","consommation":"15133"},{"Date":"8/01/2017","consommation":"15048"},{"Date":"7/31/2017","consommation":"14958"},{"Date":"7/30/2017","consommation":"14923"},{"Date":"7/29/2017","consommation":"14869"},{"Date":"7/28/2017","consommation":"14765"},{"Date":"7/27/2017","consommation":"14706"},{"Date":"7/26/2017","consommation":"14633"},{"Date":"7/25/2017","consommation":"14684"},{"Date":"7/24/2017","consommation":"14710"},{"Date":"7/23/2017","consommation":"14619"},{"Date":"7/22/2017","consommation":"14548"},{"Date":"7/21/2017","consommation":"14492"},{"Date":"7/20/2017","consommation":"14533"},{"Date":"7/19/2017","consommation":"14594"},{"Date":"7/18/2017","consommation":"14559"},{"Date":"7/17/2017","consommation":"14556"},{"Date":"7/16/2017","consommation":"14489"},{"Date":"7/15/2017","consommation":"14575"},{"Date":"7/14/2017","consommation":"14646"},{"Date":"7/13/2017","consommation":"14703"},{"Date":"7/12/2017","consommation":"14896"},{"Date":"7/11/2017","consommation":"14807"},{"Date":"7/10/2017","consommation":"14428"},{"Date":"7/09/2017","consommation":"14346"},{"Date":"7/08/2017","consommation":"14318"},{"Date":"7/07/2017","consommation":"14546"},{"Date":"7/06/2017","consommation":"14539"},{"Date":"7/05/2017","consommation":"14300"},{"Date":"7/04/2017","consommation":"14226"},{"Date":"7/03/2017","consommation":"13963"},{"Date":"7/02/2017","consommation":"13667"},{"Date":"7/01/2017","consommation":"13656"},{"Date":"6/30/2017","consommation":"13719"},{"Date":"6/29/2017","consommation":"13817"},{"Date":"6/28/2017","consommation":"13866"},{"Date":"6/27/2017","consommation":"13909"},{"Date":"6/26/2017","consommation":"14016"},{"Date":"6/25/2017","consommation":"14010"},{"Date":"6/24/2017","consommation":"13985"},{"Date":"6/23/2017","consommation":"13875"},{"Date":"6/22/2017","consommation":"13956"},{"Date":"6/21/2017","consommation":"14293"},{"Date":"6/20/2017","consommation":"13895"},{"Date":"6/19/2017","consommation":"13867"},{"Date":"6/18/2017","consommation":"13925"},{"Date":"6/17/2017","consommation":"14014"},{"Date":"6/16/2017","consommation":"13886"},{"Date":"6/15/2017","consommation":"14150"},{"Date":"6/14/2017","consommation":"14434"},{"Date":"6/13/2017","consommation":"14711"},{"Date":"6/12/2017","consommation":"14674"},{"Date":"6/11/2017","consommation":"14912"},{"Date":"6/10/2017","consommation":"14805"},{"Date":"6/09/2017","consommation":"14659"},{"Date":"6/08/2017","consommation":"14486"},{"Date":"6/07/2017","consommation":"14025"},{"Date":"6/06/2017","consommation":"14178"},{"Date":"6/05/2017","consommation":"13938"},{"Date":"6/04/2017","consommation":"13740"},{"Date":"6/03/2017","consommation":"13574"},{"Date":"6/02/2017","consommation":"13395"},{"Date":"6/01/2017","consommation":"13427"},{"Date":"5/31/2017","consommation":"13558"},{"Date":"5/30/2017","consommation":"13428"},{"Date":"5/29/2017","consommation":"13470"},{"Date":"5/28/2017","consommation":"13541"},{"Date":"5/27/2017","consommation":"13676"},{"Date":"5/26/2017","consommation":"13748"},{"Date":"5/25/2017","consommation":"13794"},{"Date":"5/24/2017","consommation":"13775"},{"Date":"5/23/2017","consommation":"13684"},{"Date":"5/22/2017","consommation":"13686"},{"Date":"5/21/2017","consommation":"13641"},{"Date":"5/20/2017","consommation":"13600"},{"Date":"5/19/2017","consommation":"13679"},{"Date":"5/18/2017","consommation":"13797"},{"Date":"5/17/2017","consommation":"13580"},{"Date":"5/16/2017","consommation":"13513"},{"Date":"5/15/2017","consommation":"13305"},{"Date":"5/14/2017","consommation":"13132"},{"Date":"5/13/2017","consommation":"13107"},{"Date":"5/12/2017","consommation":"12965"},{"Date":"5/11/2017","consommation":"12795"},{"Date":"5/10/2017","consommation":"12760"},{"Date":"5/09/2017","consommation":"12416"},{"Date":"5/08/2017","consommation":"12179"},{"Date":"5/07/2017","consommation":"12041"},{"Date":"5/06/2017","consommation":"11866"},{"Date":"5/05/2017","consommation":"11861"},{"Date":"5/04/2017","consommation":"11734"},{"Date":"5/03/2017","consommation":"11672"},{"Date":"5/02/2017","consommation":"11573"},{"Date":"5/01/2017","consommation":"11486"},{"Date":"4/30/2017","consommation":"11363"},{"Date":"4/29/2017","consommation":"11255"},{"Date":"4/28/2017","consommation":"11167"},{"Date":"4/27/2017","consommation":"11078"},{"Date":"4/26/2017","consommation":"11029"},{"Date":"4/25/2017","consommation":"11223"},{"Date":"4/24/2017","consommation":"11184"},{"Date":"4/23/2017","consommation":"11120"},{"Date":"4/22/2017","consommation":"11151"},{"Date":"4/21/2017","consommation":"11098"},{"Date":"4/20/2017","consommation":"11095"},{"Date":"4/19/2017","consommation":"11120"},{"Date":"4/18/2017","consommation":"11126"},{"Date":"4/17/2017","consommation":"11177"},{"Date":"4/16/2017","consommation":"11201"},{"Date":"4/15/2017","consommation":"11086"},{"Date":"4/14/2017","consommation":"11122"},{"Date":"4/13/2017","consommation":"11188"},{"Date":"4/12/2017","consommation":"11062"},{"Date":"4/11/2017","consommation":"10992"},{"Date":"4/10/2017","consommation":"11003"},{"Date":"4/09/2017","consommation":"10999"},{"Date":"4/08/2017","consommation":"10853"},{"Date":"4/07/2017","consommation":"10958"},{"Date":"4/06/2017","consommation":"10952"},{"Date":"4/05/2017","consommation":"10920"},{"Date":"4/04/2017","consommation":"10888"},{"Date":"4/03/2017","consommation":"10795"},{"Date":"4/02/2017","consommation":"10669"},{"Date":"4/01/2017","consommation":"10728"},{"Date":"3/31/2017","consommation":"10541"},{"Date":"3/30/2017","consommation":"10445"},{"Date":"3/29/2017","consommation":"10444"},{"Date":"3/28/2017","consommation":"10435"},{"Date":"3/27/2017","consommation":"9922"},{"Date":"3/26/2017","consommation":"9726"},{"Date":"3/25/2017","consommation":"9588"},{"Date":"3/24/2017","consommation":"10176"},{"Date":"3/23/2017","consommation":"10445"},{"Date":"3/22/2017","consommation":"10798"},{"Date":"3/21/2017","consommation":"10759"},{"Date":"3/20/2017","consommation":"10436"},{"Date":"3/19/2017","consommation":"10134"},{"Date":"3/18/2017","consommation":"10495"},{"Date":"3/17/2017","consommation":"10498"},{"Date":"3/16/2017","consommation":"10458"},{"Date":"3/15/2017","consommation":"10455"},{"Date":"3/14/2017","consommation":"10351"},{"Date":"3/13/2017","consommation":"10301"},{"Date":"3/12/2017","consommation":"10320"},{"Date":"3/11/2017","consommation":"10373"},{"Date":"3/10/2017","consommation":"10372"},{"Date":"3/09/2017","consommation":"10473"},{"Date":"3/08/2017","consommation":"10425"},{"Date":"3/07/2017","consommation":"10406"},{"Date":"3/06/2017","consommation":"10403"},{"Date":"3/05/2017","consommation":"10404"},{"Date":"3/04/2017","consommation":"10400"},{"Date":"3/03/2017","consommation":"10422"},{"Date":"3/02/2017","consommation":"10428"},{"Date":"3/01/2017","consommation":"10234"},{"Date":"2/28/2017","consommation":"10188"},{"Date":"2/27/2017","consommation":"10146"},{"Date":"2/26/2017","consommation":"9827"},{"Date":"2/25/2017","consommation":"9635"},{"Date":"2/24/2017","consommation":"9475"},{"Date":"2/23/2017","consommation":"9507"},{"Date":"2/22/2017","consommation":"9510"},{"Date":"2/21/2017","consommation":"9440"},{"Date":"2/20/2017","consommation":"9291"},{"Date":"2/19/2017","consommation":"9319"},{"Date":"2/18/2017","consommation":"9327"},{"Date":"2/17/2017","consommation":"9324"},{"Date":"2/16/2017","consommation":"9392"},{"Date":"2/15/2017","consommation":"9569"},{"Date":"2/14/2017","consommation":"9545"},{"Date":"2/13/2017","consommation":"9477"},{"Date":"2/12/2017","consommation":"9579"},{"Date":"2/11/2017","consommation":"9547"},{"Date":"2/10/2017","consommation":"9586"}];
+
+  var manualReusableParameters = {"rotateXRow":{"value":false,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1,"category":"general"},"chart_width":{"value":600,"type":"slider","label":"Largeur du graphique","initial_value":600,"min":300,"max":800,"activated":1,"category":"general"},"chart_height":{"value":400,"type":"slider","label":"Hauteur du graphique","initial_value":400,"min":200,"max":800,"activated":1,"category":"general"},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_left":{"value":0,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_right":{"value":0,"type":"slider","label":"marge droite","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_top":{"value":0,"type":"slider","label":"marge haute","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"sort_descending":{"value":true,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1,"category":"general"},"invert_order":{"value":false,"type":"checkbox","label":"inverser l'ordre","initial_value":false,"activated":0,"category":"general"},"differentAxisY":{"value":false,"type":"checkbox","label":"Adapter l'axe des Y aux données","initial_value":false,"activated":0,"category":"general"},"rangeX":{"type":"checkInputs","label":"Range X personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":0,"category":"general"},"rangeY":{"value":true,"type":"checkInputs","label":"Range Y personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":9291,"calculated_right_value":37170,"manual_left_value":0,"manual_right_value":40000,"activated":1,"category":"general"},"color_field_select":{"value":"libeCategoricalColors","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"libeCategoricalColors","activated":0,"fields":["libeCategoricalColors","LibePoliticalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"],"category":"color"},"persColorsCheck":{"value":false,"type":"persColorsCheck","label":"Couleurs personalisées","initial_value":false,"activated":1,"category":"color"},"indice_100":{"value":false,"type":"checkbox","label":"Démarrer à l'indice 100","initial_value":false,"activated":1,"category":"calculs"},"displayLabel":{"value":false,"type":"checkbox","label":"afficher la valeur","initial_value":false,"activated":1,"category":"labels"},"startEndValues":{"type":"checkInputs","label":"Valeurs de début et de fin","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"filter"},"caseLegend":{"type":"checkSelects","label":"Afficher la légende","range":[{"value":"topRight","label":"En haut à droite"},{"value":"topLeft","label":"En haut à gauche"},{"value":"bottomLeft","label":"En bas à gauche"},{"value":"bottomRight","label":"En bas à droite"}],"initial_range_value":"topRight","manual_range_value":null,"activated":1,"category":"legend"},"padding_left_legend":{"value":0,"type":"slider","label":"marge gauche légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"padding_top_legend":{"value":0,"type":"slider","label":"marge haute légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"legendOrientation":{"type":"simpleSelect","label":"Orientation de la légende","range":[{"value":"vertical","label":"Verticale"},{"value":"horizontal","label":"Horizontale"}],"initial_range_value":"vertical","manual_range_value":null,"category":"legend","dependOn":"caseLegend"},"inner_padding_legend":{"value":2,"type":"slider","label":"Marge intérieure de la légende","initial_value":2,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"leftAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations à gauche","initial_value":10,"min":0,"max":20,"activated":1,"category":"grid"},"bottomAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations en bas","initial_value":5,"min":0,"max":20,"activated":1,"category":"grid"},"leftAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe gauche","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"bottomAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe bas","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"ticksStroke":{"type":"simpleSelect","label":"Couleur des graduations","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#e4e4e4","activated":1,"category":"grid"},"leftTickSize":{"type":"simpleSelect","label":"Taille des graduations horizontales","range":[{"value":"small","label":"petites"},{"value":"fullWidth","label":"largeur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"fullWidth","activated":1,"category":"grid"},"bottomTickSize":{"type":"simpleSelect","label":"Taille des graduations verticales","range":[{"value":"small","label":"petites"},{"value":"fullHeight","label":"hauteur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"small","activated":1,"category":"grid"},"yAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe gauche","initial_value":false,"activated":1,"category":"labels"},"xAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe bas","initial_value":false,"activated":1,"category":"labels"},"yAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe gauche","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe bas","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"xAxisLabel"},"yAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe gauche","category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe bas","category":"labels","activated":false,"dependOn":"xAxisLabel"},"trimKValue":{"value":true,"type":"checkbox","label":"Supprimer les espaces inutiles","initial_value":true,"activated":0,"category":"textRemplacement"},"hideCircles":{"value":true,"type":"checkbox","label":"Supprimer les cercles","initial_value":false,"activated":1,"category":"general"},"dateField":{"value":true,"type":"checkSelects","label":"Y a-t-il un champ date ?","range":"selectedFields","initial_range_value":"topRight","manual_range_value":"Date","initial_value":false,"activated":1,"category":"textRemplacement"},"dateFieldFormat":{"value":"MM/DD/YYYY","initial_value":"DD/MM/YYYY","type":"simpleInputs","label":"Format de date","category":"textRemplacement","activated":true,"dependOn":"dateField"},"groupingFunction":{"type":"simpleSelect","label":"Fonction de réduction des données","range":[{"value":"sum","label":"Somme"},{"value":"mean","label":"moyenne"},{"value":"median","label":"médianne"}],"initial_range_value":null,"manual_range_value":"sum","activated":0,"category":"calculs"},"logScale":{"value":false,"type":"checkbox","label":"Echelle logarithmique","initial_value":false,"activated":1,"category":"calculs"},"beeswarnRadius":{"value":2,"type":"slider","label":"Taille des points","initial_value":2,"min":1,"max":20,"activated":0,"category":"general"},"beeswarnCollide":{"value":3,"type":"slider","label":"Eloignement des points","initial_value":3,"min":1,"max":20,"activated":0,"category":"general"},"customCode":{"type":"simpleInputs","label":"Ajouter du code js","activated":1,"category":"textRemplacement"}};
+
+  var graphParameters = {"selected_xRows":["Date"],"selected_yRows":["consommation"],"selected_size":[],"selected_color":[],"selected_label":[],"selected_tooltip":[],"personalizedColorsObject":{},"selectedColorScheme":"libeCategoricalColors","additionnalParam":"","selected_graph":"lineChart","chartTitle":"Consommation du Bitcoin en Gigawatt  /heure","chartSource":"Digiconomist","annotations":[{"note":{"label":"Consommation du Dannemark","title":"","wrap":"300","orientation":0},"x":555,"y":59,"dy":-2,"dx":-100,"subject":{"radius":20,"radiusPadding":2},"functionName":"annotationCallout","connector":{"end":"arrow"},"color":"#3c3c3b","index":1,"disable":[]},{"note":{"label":"Consommation du Nigeria","title":"","wrap":"300","orientation":0},"x":481,"y":144,"dy":-2,"dx":-115,"subject":{"radius":20,"radiusPadding":2},"functionName":"annotationCallout","connector":{"end":"arrow"},"color":"#3c3c3b","index":2,"disable":[]},{"note":{"label":"Consommation de l'Islande","title":"","wrap":"300","orientation":0},"x":415,"y":193,"dy":-3,"dx":-122,"subject":{"radius":20,"radiusPadding":2},"functionName":"annotationCallout","connector":{"end":"arrow"},"color":"#3c3c3b","index":3,"disable":[]},{"note":{"label":"Consommation de l'Urugway","title":"","wrap":"300","orientation":0},"x":133,"y":261,"dy":1,"dx":152,"subject":{"radius":20,"radiusPadding":2},"functionName":"annotationCallout","connector":{"end":"arrow"},"color":"#3c3c3b","index":4,"disable":[]}]};
+
+  var manualCustomParameters = {"fieldsToReplace":[]};
+
+  color = findColorsScheme(graphParameters.selectedColorScheme);
+
+
+  graphParameters.annotations.forEach(function(d){
+
+    d.type = d3[d.functionName];
+
+
+  })
+
+  var parametersType = [{
+    selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+    {selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+    {selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+    {selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+    {selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+    ];
+
+    var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+
+    var parseTime = d3.timeParse('%Y/%m/%d');
+
+    d3.select("#chart")
+    .attr("class", graphParameters.selected_graph);
+
+    d3.select("#chartTitle")
+    .text(graphParameters['chartTitle']);
+
+
+        d3.select("#chartSource")
+    .text(graphParameters['chartSource']);
+
+    function initChart() {
+
+      var svg = d3.select("svg")
+      .call(responsivefy);
+
+      margin = {
+        top: 20,
+        right: 20,
+        bottom: 60,
+        left: 50
+      };
+
+      width = +svg.attr("width") - margin.left - margin.right;
+      height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+
+      var g = svg.append("g")
+      .attr('class', 'graphContainer')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--y")
+      .attr('transform', 'translate(0,0)');
+
+      g.append("g")
+      .attr('class', 'innerGraph');
+
+    }
+
+
+    var makeAnnotations_ = d3.annotation()
+    .editMode(false)
+  // .type(annotationType)
+  ;
+
+
+  var annotationGroup = d3.select("#chart svg")
+  .append("g")
+  .attr("class", "annotation-group");
+
+
+  var annotations = graphParameters.annotations ? graphParameters.annotations : [];
+
+
+  function makeAnnotation(){
+
+
+
+    for (i in makeAnnotations_.annotations()){
+
+      var d = makeAnnotations_.annotations()[i];
+
+// console.log(d);
+// console.log(i);
+
+annotations[i].x = d.x;
+annotations[i].y = d.y;
+annotations[i].dx = d.dx;
+annotations[i].dy = d.dy;
+
+}
+
+makeAnnotations_
+.annotations(annotations)
+
+d3.select("#chart svg g.annotation-group")
+.call(makeAnnotations_);
+
+
+d3.selectAll(".annotation-group .annotations .annotation text")
+      .attr('transform', function(d){return 'rotate(' + (+d.note.orientation) + ')'});
+
+d3.select(".annotation-group").node().parentNode.appendChild(d3.select(".annotation-group").node())
+
+}
+
+
+function makeLinechart(data) {
+
+
+
+      var initial_data = _.cloneDeep(data);
+
+
+
+      var kValue = graphParameters['selected_xRows'][0];
+      var dValues = graphParameters['selected_yRows'];
+      var dValue = dValues[0];
+
+      var svg = d3.select("svg");
+      var g = svg.select('g.graphContainer');
+      var g_inner = g.select('g.innerGraph');
+
+      updateParameters();
+
+      data = recalculateAndTransformValues(initial_data, kValue, dValues)
+
+
+      if (manualReusableParameters.startEndValues.value != 0 && manualReusableParameters.startEndValues.value !== undefined){
+
+        var this_x_values = data.map(function(d){return d[kValue]})
+        var minXval =  manualReusableParameters.startEndValues.manual_left_value ?  manualReusableParameters.startEndValues.manual_left_value : +this_x_values[0];
+        var maxXval =  manualReusableParameters.startEndValues.manual_right_value ?  manualReusableParameters.startEndValues.manual_right_value : +this_x_values[this_x_values.length -1];
+
+        data = data.filter(function(d){return d[kValue] >= minXval && d[kValue] <= maxXval});
+    }
+
+
+    if (manualReusableParameters.indice_100.value == 1){
+
+        if (checkIfpercentageInArray(data, dValues) == true){
+
+
+            data = prepareLineChartIndice100Growth(data, kValue, dValues);
+        }
+        else{
+
+            data = prepareLineChartIndice100Value(data, kValue, dValues);
+        }
+    }
+
+    else{
+      data = prepareLineChartData(data, kValue, dValues);
+  }
+
+
+  manualReusableParameters.rangeY.calculated_left_value =  d3.min(data, function(d) { return d3.min(d, function(e) { return e['y_value'] }) });
+  manualReusableParameters.rangeY.calculated_right_value =  d3.max(data, function(d) { return d3.max(d, function(e) { return e['y_value'] }) });
+
+  var thisYMin = manualReusableParameters.rangeY.value === false ?  manualReusableParameters.rangeY.calculated_left_value : manualReusableParameters.rangeY.manual_left_value !== null ? manualReusableParameters.rangeY.manual_left_value : manualReusableParameters.rangeY.calculated_left_value;
+  var thisYMax = manualReusableParameters.rangeY.value === false ?  manualReusableParameters.rangeY.calculated_right_value : manualReusableParameters.rangeY.manual_right_value !== null ? manualReusableParameters.rangeY.manual_right_value : manualReusableParameters.rangeY.calculated_right_value;
+
+
+
+  var xScale = xScaleType()
+  .domain([d3.min(data, function(d) { return d3.min(d, function(e) { return e['x_value'] }) }),
+    d3.max(data, function(d) { return d3.max(d, function(e) { return e['x_value'] }) }) ])
+  .range([0, width]);
+
+
+  var thisScaleType = manualReusableParameters.logScale.value ? d3.scaleLog(2) : d3.scaleLinear();
+
+  var yScale = thisScaleType
+  .domain([thisYMin,
+    thisYMax
+    ])
+  .range([height, 0]);
+
+  changeAxis(xScale, yScale);
+
+  g.select('g.innerGraph')
+  .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + manualReusableParameters.padding_top.value + ")");
+
+  g.select("g.axis.axis--x")
+  .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (height + manualReusableParameters.padding_top.value) +")")
+  .call(axis_bottom)
+  .selectAll("text")
+  .style("text-anchor", "middle")
+  .attr("dx", "0em")
+  .attr("dy", "0.7em")
+  .attr("transform", "rotate(0)");
+
+  if (manualReusableParameters.rotateXRow.value == true){
+
+    g.select("g.axis.axis--x")
+    .selectAll("g.tick")
+    .select("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-40)");
+
+}
+
+
+g.select("g.axis.axis--y")
+.attr('transform', 'translate(' + manualReusableParameters.padding_left.value + ',' + manualReusableParameters.padding_top.value + ')')
+.call(axis_left);
+
+
+
+var line = d3.line()
+.x(function(d) { return xScale(d.x_value) })
+.y(function(d) { return yScale(d.y_value)
+})
+        // .curve(d3.curveCatmullRom.alpha(0.5))
+
+
+        var allLines = g_inner
+        .selectAll('.line')
+        .data(data);
+
+        allLines
+        .transition()
+        .duration(200)
+        .attr('d', function(d) { return line(d) })
+        .style('stroke', function(d) { return colorUpdated(d[0].name) });
+
+        allLines.exit().transition().duration(200).remove();
+
+        allLines
+        .enter()
+        .append('path')
+        .attr('class', 'line')
+        .attr('d', function(d) { return line(d) })
+        .style('stroke', function(d) { return colorUpdated(d[0].name) })
+        .style('stroke-width', 2)
+        .style('fill', 'none');
+
+        AllDotPoints = g_inner
+        .selectAll('circle.dotPoint')
+        .data(_.flatten(data));
+
+        AllDotPoints
+        // .transition()
+        // .duration(200)
+        .attr('cx', function(d) { return xScale(d.x_value) })
+        .attr('cy', function(d) { return yScale(d.y_value) })
+        .style('fill', function(d) { return colorUpdated(d.name) })
+        .style('fill-opacity', function() { return manualReusableParameters.hideCircles.value ? 0 : 1 });
+
+        AllDotPoints.exit().transition().duration(200).remove();
+
+        AllDotPoints
+        .enter()
+        .append('circle')
+        .attr('class', 'dotPoint')
+        .attr('cx', function(d, i) { return xScale(d.x_value) })
+        .attr('cy', function(d) { return yScale(d.y_value) })
+        .style('fill', function(d) { return colorUpdated(d.name) })
+        .attr('r', 3)
+        .style('stroke-width', 5)
+        .style('stroke', 'white')
+        .style('stroke-opacity', 0)
+        .style('fill-opacity', function() { return manualReusableParameters.hideCircles.value ? 0 : 1 })
+        // .style('fill', 'black')
+        .on('mouseover', function(d, i){ show_tooltip(_.find(initial_data, function(e){
+            return formatNumbersDate(e[graphParameters.selected_xRows[0]], graphParameters.selected_xRows[0]) == d.x_value}), d.name)})
+        .on('mouseout', function(d){ hide_tooltip()});
+        ;
+
+
+        allLabels =  g_inner
+        .selectAll('text.label')
+        .data(data.map(function(d){return d[d.length -1]}));
+
+        var allLabelsE = allLabels
+        .enter()
+        .append('text')
+        .attr('class', 'label');
+
+        allLabels.exit().remove()
+
+        allLabels
+        .merge(allLabelsE)
+        .attr('x', function(d){return xScale(d.x_value) + 6})
+        .attr('y', function(d){return yScale(d.y_value) - 6})
+        .attr('text-anchor', 'start')
+        .text(function(d){return manualReusableParameters.displayLabel.value ? _.capitalize(d.name) : ''})
+        .attr('fill', function(d){return colorUpdated(d.name)});
+
+/// Axis Label
+
+g_inner
+.call(xAxisLabel, graphParameters.selected_xRows[0]);
+
+g_inner
+.call(yAxisLabel, graphParameters.selected_yRows[0]);
+
+  // cell.append("circle")
+  //     .attr("r", radius)
+  //     .attr("cx", function(d) {d.data.x_start =  d.data.x; return d.data.x; })
+  //     .attr("cy", function(d) { d.data.y_start =  d.data.y;  return d.data.y; })
+  //     // .attr('fill', function(d){return color(d.data.Compositeur)})
+  //     .attr('fill', '#18100b')
+  //     // .attr('stroke', function(d){return color(d.data.Compositeur)})
+  //     .attr('stroke', '#18100b')
+  //     .on('mouseover', function(d, i){ show_tooltip(d)})
+  //     .on('mouseout', function(d){ hide_tooltip()});
+
+
+  customizeAxis()
+
+  drawLegend()
+  addCustomCode()
+
+}
+
+initChart();
+
+makeLinechart(data);
+
+
+
+
+
+makeAnnotation();
+
+d3.select("svg").call(responsivefy)
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+  var d = d.data ? d.data : d;
+
+  if (d){
+
+    d3.select("#tooltip").style('display', 'block');
+
+    var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+    var dx = d3.event.pageX;
+
+    if (dx > d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width){
+
+      dx = d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width;
+    }
+
+    var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+
+        if (graphParameters.selected_tooltip && graphParameters.selected_tooltip.length > 0){
+            var param_array = [graphParameters.selected_tooltip]
+            // var tooltip_values = 1
+        }
+        else{
+        
+                var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+                graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+        }
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+
+
+         );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+      d3.select("#tooltip")
+      .classed('is-active', false);
+
+      d3.select("#tooltip")
+      .style('display', 'none');
+
+    }
+
+    function updateParameters(){
+
+      var svg = d3.select("svg");
+
+      svg
+      .attr('width', manualReusableParameters.chart_width.value);
+
+      // d3.select('div#chart')
+      // .style('width', manualReusableParameters.chart_width.value);
+
+      svg.attr("width", manualReusableParameters.chart_width.value);
+
+      svg
+      .attr('height', manualReusableParameters.chart_height.value);
+
+      width = manualReusableParameters.chart_width.value - initMargin.left - initMargin.right;
+
+      height = manualReusableParameters.chart_height.value - initMargin.top - initMargin.bottom;
+
+      width = width  - manualReusableParameters.padding_left.value - manualReusableParameters.padding_right.value;
+      height = height - manualReusableParameters.padding_bottom.value- manualReusableParameters.padding_top.value;
+
+    }
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+  var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+  new_n = +new_n;
+
+  return new_n  
+
+}
+
+
+function formatNumbersDate(n, field){
+
+  if (manualReusableParameters.dateField.value == true && manualReusableParameters.dateField.manual_range_value == field){
+
+    return moment(n, manualReusableParameters.dateFieldFormat.value)
+  }
+
+  return +n  
+
+}
+
+
+function arrayIfObject(objectData) {
+
+  var arrayData = objectData.map(function(d) { return d3.values(d) });
+  arrayData.unshift(d3.keys(objectData[0]));
+  return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+  var objectData = arrayData.slice(1).map(function(d) {
+    var this_object = {}
+    for (i in arrayData[0]) {
+      this_object[arrayData[0][i]] = d[i];
+    }
+    return this_object
+  })
+  return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+})
+  .entries(data)
+  return result
+}
+
+function groupbyKVMultiple(data, key, values, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) {
+    var those_values = {};
+    for (i in values){
+      var this_value = values[i];
+      those_values[this_value] = this_function(v, function(e) { return e[this_value]} )
+    }
+
+    return { those_values}
+  })
+  .entries(data);
+
+  result = result.map(function(d){ return _.assign({[key]: d['key'] }, d['value']['those_values'])});
+
+  return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+
+    new_data.push(data.map(function(d) {
+      return {
+        x_value: +d[kValue],
+        name: v,
+        y_value: +d[v]
+      }
+    }));
+  }
+
+  return new_data
+}
+
+
+
+function prepareLineChartIndice100Growth(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:_.round((new_data_next[i].y_value * ((100 + (formatNumbers(d[v])))/100)), 2)});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+
+function prepareLineChartIndice100Value(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    // var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+    var new_data_next = [];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:(_.round(formatNumbers(100*d[v])/formatNumbers(data[0][v]), 2))});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+function checkIfpercentageInArray(data, dValues){
+
+  var chained_data = _.chain(d3.entries(data))
+  .map(function(d){return d.value})
+  .map(function(d){return dValues.map(function(e){return d[e]})})
+  .value()
+
+  var thisMinMAx = [d3.min(chained_data, function(d){return d3.min(d, function(e){return +e})}), d3.max(chained_data, function(d){return d3.max(d, function(e){return +e})})];
+
+  if (thisMinMAx[0] > -100 && thisMinMAx[0] < 100 && thisMinMAx[1] > -100 && thisMinMAx[1] < 100){
+    return true
+  }
+
+  return false
+
+}
+
+
+function emptyChart(){
+
+  d3.select('#varSwitch').selectAll("*").remove();
+  d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+
+function findColorsScheme(thisSelection){
+
+  var this_domain = color.domain();
+
+  var this_color = thisSelection == 'libeCategoricalColors' ?  d3.scaleOrdinal(libeCategoricalColors) : thisSelection == 'LibePoliticalColors' ?  d3.scaleOrdinal(LibePoliticalColors) : d3.scaleOrdinal(d3[manualReusableParameters.color_field_select.value]);
+
+  this_color.domain(this_domain);
+
+  return this_color;
+}
+
+function colorUpdated(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return color(thisKey) 
+
+}
+
+function colorBarchart(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return basicColors[thisKey].initial 
+
+}
+
+
+function numbers_separators(num){
+  return num.toLocaleString('fr-FR', {minimumFractionDigits: 0});
+}
+
+
+
+
+function drawLegend(){
+
+
+
+    var svg = d3.select('svg');
+
+    svg.select('g.legendOrdinal').remove();
+
+    if (manualReusableParameters.caseLegend.value){
+
+        var thisLegendorientation =  manualReusableParameters.legendOrientation.manual_range_value ? manualReusableParameters.legendOrientation.manual_range_value : manualReusableParameters.legendOrientation.initial_range_value;
+
+        var this_inner_padding = manualReusableParameters.inner_padding_legend.value ? manualReusableParameters.inner_padding_legend.value : manualReusableParameters.inner_padding_legend.initial_value;
+
+        svg.append("g")
+        .attr("class", "legendOrdinal")
+        .attr("transform", "translate("+ (width - 100 )+  ",20)");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            color.domain(d3.keys(graphParameters.personalizedColorsObject))
+      }
+
+        var ordinal = d3.scaleOrdinal()
+        .domain(color.domain())
+        .range(color.range());
+
+        var legendOrdinal = d3.legendColor()
+        .orient(thisLegendorientation)
+        .shapeWidth(15)
+        .shapeHeight(15)
+        .shapePadding(this_inner_padding)
+        .scale(ordinal);
+
+
+        svg.select(".legendOrdinal")
+        .call(legendOrdinal);
+
+        var thisElementWidth = Math.round(d3.select('.legendOrdinal').node().getBBox().width);
+        var thisElementHeight = Math.round(d3.select('.legendOrdinal').node().getBBox().height);
+
+        svg.selectAll(".legendOrdinal text.label")
+        .style('font-size', '0.8rem');
+
+        var this_padding_left = manualReusableParameters.padding_left_legend.value ? manualReusableParameters.padding_left_legend.value : 0;
+        var this_padding_top = manualReusableParameters.padding_top_legend.value ? manualReusableParameters.padding_top_legend.value : 0;
+
+        if (manualReusableParameters.caseLegend.manual_range_value){
+            if (manualReusableParameters.caseLegend.manual_range_value == 'topRight'){
+
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth + this_padding_left);
+                var thisElementTopMargin = (20 + this_padding_top);
+
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'topLeft'){
+                var thisElementLeftMargin = 20 + this_padding_left;
+                var thisElementTopMargin = (20 + this_padding_top);
+            }
+
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomLeft'){
+                var thisElementLeftMargin = (20 + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top );
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomRight'){
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top ); 
+            }
+
+        }
+        else{
+            var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+            var thisElementTopMargin = (20 + this_padding_top);
+
+        }
+
+
+        svg.select(".legendOrdinal")
+        .attr("transform", "translate("+ thisElementLeftMargin +  ","+ thisElementTopMargin + ")");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            svg.selectAll(".legendOrdinal g.cell rect").style('fill', function(d){return colorUpdated(d)})
+
+
+        }
+
+    }
+
+}
+
+
+
+
+function changeAxis(xScale, yScale){
+
+
+    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+        moment.locale('fr')
+
+        function thisDateFormat (d){ return moment(d).format('L')}
+
+    }
+    else{
+
+        function thisDateFormat (d){ return d}
+
+    }
+
+
+    if (graphParameters.selected_graph != 'barChartHorizontal'){
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(thisDateFormat);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(numbers_separators);
+
+    }
+
+    else{
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(numbers_separators);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(thisDateFormat);
+
+    }
+
+
+
+
+}
+
+
+function customizeAxis(){
+
+
+  var svg = d3.select('svg');
+
+  svg.select("g.axis--x path").attr('stroke', manualReusableParameters.bottomAxisStroke.manual_range_value)
+
+  svg.select("g.axis--y path").attr('stroke', manualReusableParameters.leftAxisStroke.manual_range_value)
+
+  svg.selectAll("g.axis--x, g.axis--y").selectAll('g.tick line').attr('stroke', manualReusableParameters.ticksStroke.manual_range_value);
+
+
+
+  if (manualReusableParameters.leftTickSize.manual_range_value){
+    if (manualReusableParameters.leftTickSize.manual_range_value == 'small'){var thisLeftTickx1Value = 0  }
+      else if (manualReusableParameters.leftTickSize.manual_range_value == 'fullWidth'){var thisLeftTickx1Value = width  }
+        else if (manualReusableParameters.leftTickSize.manual_range_value == 'invisible'){var thisLeftTickx1Value = -6  }
+      }
+    else {var thisLeftTickx1Value = 0  }
+
+      if (manualReusableParameters.bottomTickSize.manual_range_value){
+        if (manualReusableParameters.bottomTickSize.manual_range_value == 'small'){var thisBottomTickx1Value = 0  }
+          else if (manualReusableParameters.bottomTickSize.manual_range_value == 'fullWidth'){var thisBottomTickx1Value = -height  }
+            else if (manualReusableParameters.bottomTickSize.manual_range_value == 'invisible'){var thisBottomTickx1Value = 6  }
+          }
+        else {var thisBottomTickx1Value = 0  }
+
+          svg.select("g.axis--y").selectAll('g.tick line').attr('x1', thisLeftTickx1Value);
+
+        svg.select("g.axis--x").selectAll('g.tick line').attr('y1', thisBottomTickx1Value);
+
+
+      }
+
+
+      function xAxisLabel(sel, labelText){
+
+
+        if (manualReusableParameters.xAxisLabel.value && manualReusableParameters.xAxisLabelText.value){
+
+          var labelText = manualReusableParameters.xAxisLabelText.value;
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.xAxisLabelPadding.value ? +manualReusableParameters.xAxisLabelPadding.value : 0;
+
+        var this_sel = sel
+        .selectAll('text.xAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel');
+
+        this_sel
+        .merge(this_selE)         
+        .attr("transform",
+          "translate(" + (width/2) + " ," + 
+          (+thisPadding + height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+
+
+      function yAxisLabel(sel, labelText){
+
+        if (manualReusableParameters.yAxisLabel.value && manualReusableParameters.yAxisLabelText.value){
+
+          var labelText = manualReusableParameters.yAxisLabelText.value;
+
+
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.yAxisLabelPadding.value ? +manualReusableParameters.yAxisLabelPadding.value : 0;
+
+
+        var this_sel = sel
+        .selectAll('text.yAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel')
+        .attr("transform", "rotate(-90)")
+        ;
+
+        this_sel
+        .merge(this_selE)         
+        .attr("y", (+thisPadding - margin.left))
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+            function xScaleType(){
+
+                if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                    return d3.scaleTime()
+
+                }
+
+                else{
+
+                    return d3.scaleLinear()
+
+                }
+
+            }
+
+            function recalculateAndTransformValues(data, kValue, dValues) {
+
+                var this_data = _.cloneDeep(data);
+
+                if (manualReusableParameters.trimKValue.value){
+
+                    this_data.forEach(function(d){
+                        d[kValue] = _.trim(d[kValue]);
+
+                    })
+
+                }
+
+                if (_.isEmpty(manualCustomParameters['fieldsToReplace']) == false){
+
+                    for(i in manualCustomParameters['fieldsToReplace'])
+                        if (manualCustomParameters['fieldsToReplace'][i].name && manualCustomParameters['fieldsToReplace'][i].newValue && manualCustomParameters['fieldsToReplace'][i].oldValue){
+
+                            this_data.forEach(function(d){
+
+                                d[manualCustomParameters['fieldsToReplace'][i].name] = d[manualCustomParameters['fieldsToReplace'][i].name] == manualCustomParameters['fieldsToReplace'][i].oldValue ? manualCustomParameters['fieldsToReplace'][i].newValue : d[manualCustomParameters['fieldsToReplace'][i].name];
+
+                            })
+
+
+                        }
+
+                    }
+
+                    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                      moment.locale('fr')
+
+                        this_data.forEach(function(d){
+                            d[manualReusableParameters.dateField.manual_range_value] = moment(d[manualReusableParameters.dateField.manual_range_value], manualReusableParameters.dateFieldFormat.value);
+
+                        })
+
+                    }
+
+                    return this_data
+                }
+
+function responsivefy(svg, width, height) {
+
+    // get container + svg aspect ratio
+    var container = d3.select(svg.node().parentNode),
+        width = parseInt(svg.style('width')),
+        height = parseInt(svg.style("height")),
+        // aspect = width / height;
+        aspect = width / height;
+
+    // add viewBox and preserve aspectratio properties
+    // call resize so that svg resizes on initial page load
+    svg.attr("viewBox", "0 0 " + width + " " + height)
+        .attr("preserveAspectRatio", "xMinYMid")
+        .call(resize);
+
+    // to register multiple listeners for the same event type
+    d3.select(window).on("resize." + container.attr("id"), resize);
+
+    function resize() {
+
+        var targetWidth = parseInt(container.style("width"));
+        var targetHeight = Math.round(targetWidth / aspect);
+
+        svg.attr("width", targetWidth);
+        svg.attr("height", targetHeight);
+
+    }
+}
+
+function add_tooltip_values(this_grouped_data, data, kValue){
+
+
+        this_grouped_data.forEach(function(d) {
+            var o = data.filter(function(e){return e[kValue] ==  d[kValue]})[0];
+        for (i in graphParameters.selected_tooltip){
+            var this_el = graphParameters.selected_tooltip[i]
+            if (d3.keys(d).indexOf(this_el) == -1){
+
+                d[this_el] = o[this_el];
+            }
+        }
+    })
+
+    return this_grouped_data
+
+}
+
+function addCustomCode(){
+
+if (eval(manualReusableParameters.customCode.value))
+    {eval(manualReusableParameters.customCode.value)}
+
+}
+      </script>
+    </body>
+    </html>

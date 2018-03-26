@@ -1,0 +1,549 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Scores des partis politiques</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+	<link rel="stylesheet" href="../utilities/css/bulma.css">
+	<link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+	<section class="hero">
+		<!-- <img class="logo" src="static/img/logo.png" alt=""> -->
+		<div class="container">
+			<!-- <h1 class="title" >Scores des partis politiques</h1> -->
+			<!-- <h2 class="subtitle">Mes graphiques</h2> -->
+
+		</div>
+	</section>
+
+
+	<section class="section" class="">
+		<div class="container">
+
+
+
+
+				<div id="chart">
+				<h4 class="title is-4" id="chartTitle"></h4>
+				<div id="varSwitch" class='tags'></div>
+					<svg width="600" height="400"></svg>
+				</div>
+
+</section>
+
+				<!-- JS -->
+				<script src="../utilities/js/jquery-1.10.2.js"></script>
+
+	<script src="https://d3js.org/d3.v4.js"></script>
+	<script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+	<script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+	<!-- <script src="static/js/app.js"></script> -->
+
+	<script type="text/javascript">
+
+   var margin = {},
+    width,
+    height;
+    var initMargin = {
+        top: 20,
+        right: 20,
+        bottom: 60,
+        left: 40
+    };
+
+
+    var initTotalWidth = 600;
+    var initTotalHeight = 400;
+
+    var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+    var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+var categorical_color_scale = [
+{ "name" : "schemeAccent", "n": 8},
+{ "name" : "schemeDark2", "n": 8},
+{ "name" : "schemePastel2", "n": 8},
+{ "name" : "schemeSet2", "n": 8},
+{ "name" : "schemeSet1", "n": 9},
+{ "name" : "schemePastel1", "n": 9},
+{ "name" : "schemeCategory10", "n" : 10},
+{ "name" : "schemeSet3", "n" : 12 },
+{ "name" : "schemePaired", "n": 12},
+{ "name" : "schemeCategory20", "n" : 20 },
+{ "name" : "schemeCategory20b", "n" : 20},
+{ "name" : "schemeCategory20c", "n" : 20 }
+];
+
+
+
+var data = [{"id_circ":"999-09","nom_departement":"Français établis hors de France","abstentions":"95144","exprimes":"11133","inscrits":"107778","votants":"12634","nua_vainqueur":"DIV","civ":"M.","name_winner":"M'Jid EL GUERRAB","voix":"6642","pc_inscrits":"6","taux_abstention":"88,3","score":59.7,"this_key":"DIV","this_value":59.7,"total":59.7},{"id_circ":"999-08","nom_departement":"Français établis hors de France","abstentions":"107185","exprimes":"13823","inscrits":"121386","votants":"14201","nua_vainqueur":"UDI","civ":"M.","name_winner":"Meyer HABIB","voix":"7998","pc_inscrits":"7","taux_abstention":"88,3","score":57.9,"this_key":"UDI","this_value":57.9,"total":57.9},{"id_circ":"999-02","nom_departement":"Français établis hors de France","abstentions":"65665","exprimes":"9019","inscrits":"75022","votants":"9357","nua_vainqueur":"REM","civ":"Mme","name_winner":"Paula FORTEZA","voix":"5494","pc_inscrits":"7","taux_abstention":"87,5","score":60.9,"this_key":"REM","this_value":60.9,"total":60.9},{"id_circ":"999-01","nom_departement":"Français établis hors de France","abstentions":"174022","exprimes":"24645","inscrits":"200179","votants":"26157","nua_vainqueur":"REM","civ":"M.","name_winner":"Roland LESCURE","voix":"19650","pc_inscrits":"10","taux_abstention":"86,9","score":79.7,"this_key":"REM","this_value":79.7,"total":79.7},{"id_circ":"999-05","nom_departement":"Français établis hors de France","abstentions":"78931","exprimes":"11823","inscrits":"91291","votants":"12360","nua_vainqueur":"REM","civ":"Mme","name_winner":"Samantha CAZEBONNE","voix":"7828","pc_inscrits":"9","taux_abstention":"86,5","score":66.2,"this_key":"REM","this_value":66.2,"total":66.2},{"id_circ":"999-03","nom_departement":"Français établis hors de France","abstentions":"99523","exprimes":"20616","inscrits":"120692","votants":"21169","nua_vainqueur":"REM","civ":"M.","name_winner":"Alexandre HOLROYD","voix":"14453","pc_inscrits":"12","taux_abstention":"82,5","score":70.1,"this_key":"REM","this_value":70.1,"total":70.1},{"id_circ":"999-10","nom_departement":"Français établis hors de France","abstentions":"81704","exprimes":"17399","inscrits":"99956","votants":"18252","nua_vainqueur":"REM","civ":"Mme","name_winner":"Amal Amélia LAKRAFI","voix":"12397","pc_inscrits":"12","taux_abstention":"81,7","score":71.3,"this_key":"REM","this_value":71.3,"total":71.3},{"id_circ":"999-06","nom_departement":"Français établis hors de France","abstentions":"103525","exprimes":"23298","inscrits":"127470","votants":"23945","nua_vainqueur":"REM","civ":"M.","name_winner":"Joachim SON-FORGET","voix":"17460","pc_inscrits":"14","taux_abstention":"81,2","score":74.9,"this_key":"REM","this_value":74.9,"total":74.9},{"id_circ":"999-04","nom_departement":"Français établis hors de France","abstentions":"97262","exprimes":"24602","inscrits":"122756","votants":"25494","nua_vainqueur":"REM","civ":"M.","name_winner":"Pieyre-Alexandre ANGLADE","voix":"18138","pc_inscrits":"15","taux_abstention":"79,2","score":73.7,"this_key":"REM","this_value":73.7,"total":73.7},{"id_circ":"999-07","nom_departement":"Français établis hors de France","abstentions":"82499","exprimes":"22425","inscrits":"105946","votants":"23447","nua_vainqueur":"MDM","civ":"M.","name_winner":"Frédéric PETIT","voix":"14115","pc_inscrits":"13","taux_abstention":"77,9","score":62.9,"this_key":"MDM","this_value":62.9,"total":62.9},{"id_circ":"999-11","nom_departement":"Français établis hors de France","abstentions":"71741","exprimes":"20073","inscrits":"92761","votants":"21020","nua_vainqueur":"REM","civ":"Mme","name_winner":"Anne GENETET","voix":"14397","pc_inscrits":"16","taux_abstention":"77,3","score":71.7,"this_key":"REM","this_value":71.7,"total":71.7},{"id_circ":"977-01","nom_departement":"Saint-Martin/Saint-Barthélemy","abstentions":"18778","exprimes":"6326","inscrits":"25414","votants":"6636","nua_vainqueur":"LR","civ":"Mme","name_winner":"Claire JAVOIS","voix":"3462","pc_inscrits":"14","taux_abstention":"73,9","score":54.7,"this_key":"LR","this_value":54.7,"total":54.7},{"id_circ":"971-03","nom_departement":"Guadeloupe","abstentions":"61663","exprimes":"19409","inscrits":"83684","votants":"22021","nua_vainqueur":"DVG","civ":"M.","name_winner":"Max MATHIASIN","voix":"12645","pc_inscrits":"15","taux_abstention":"73,7","score":65.2,"this_key":"DVG","this_value":65.2,"total":65.2},{"id_circ":"013-07","nom_departement":"Bouches-du-Rhône","abstentions":"47353","exprimes":"16814","inscrits":"65444","votants":"18091","nua_vainqueur":"REM","civ":"M.","name_winner":"Saïd AHAMADA","voix":"9818","pc_inscrits":"15","taux_abstention":"72,4","score":58.4,"this_key":"REM","this_value":58.4,"total":58.4},{"id_circ":"971-02","nom_departement":"Guadeloupe","abstentions":"62508","exprimes":"22377","inscrits":"86978","votants":"24470","nua_vainqueur":"DVG","civ":"Mme","name_winner":"Justine BENIN","voix":"14379","pc_inscrits":"17","taux_abstention":"71,9","score":64.3,"this_key":"DVG","this_value":64.3,"total":64.3},{"id_circ":"972-04","nom_departement":"Martinique","abstentions":"60005","exprimes":"21748","inscrits":"83734","votants":"23729","nua_vainqueur":"REG","civ":"M.","name_winner":"Jean-Philippe NILOR","voix":"14794","pc_inscrits":"18","taux_abstention":"71,7","score":68,"this_key":"REG","this_value":68,"total":68},{"id_circ":"973-01","nom_departement":"Guyane","abstentions":"37948","exprimes":"14702","inscrits":"53662","votants":"15714","nua_vainqueur":"DVG","civ":"M.","name_winner":"Gabriel SERVILLE","voix":"7546","pc_inscrits":"14","taux_abstention":"70,7","score":51.3,"this_key":"DVG","this_value":51.3,"total":51.3},{"id_circ":"093-02","nom_departement":"Seine-Saint-Denis","abstentions":"38158","exprimes":"14684","inscrits":"54143","votants":"15985","nua_vainqueur":"FI","civ":"M.","name_winner":"Stéphane PEU","voix":"8501","pc_inscrits":"16","taux_abstention":"70,5","score":57.9,"this_key":"FI","this_value":57.9,"total":57.9},{"id_circ":"093-04","nom_departement":"Seine-Saint-Denis","abstentions":"42913","exprimes":"16646","inscrits":"60977","votants":"18064","nua_vainqueur":"COM","civ":"Mme","name_winner":"Marie-George BUFFET","voix":"9926","pc_inscrits":"16","taux_abstention":"70,4","score":59.6,"this_key":"COM","this_value":59.6,"total":59.6},{"id_circ":"059-08","nom_departement":"Nord","abstentions":"47537","exprimes":"18592","inscrits":"67822","votants":"20285","nua_vainqueur":"REM","civ":"Mme","name_winner":"Catherine OSSON","voix":"11703","pc_inscrits":"17","taux_abstention":"70,1","score":62.9,"this_key":"REM","this_value":62.9,"total":62.9},{"id_circ":"972-01","nom_departement":"Martinique","abstentions":"55485","exprimes":"21837","inscrits":"79425","votants":"23940","nua_vainqueur":"DVG","civ":"Mme","name_winner":"Josette MANIN","voix":"11986","pc_inscrits":"15","taux_abstention":"69,9","score":54.9,"this_key":"DVG","this_value":54.9,"total":54.9},{"id_circ":"095-09","nom_departement":"Val-d'Oise","abstentions":"48574","exprimes":"18949","inscrits":"69985","votants":"21411","nua_vainqueur":"REM","civ":"Mme","name_winner":"Zivka PARK","voix":"9791","pc_inscrits":"14","taux_abstention":"69,4","score":51.7,"this_key":"REM","this_value":51.7,"total":51.7},{"id_circ":"095-08","nom_departement":"Val-d'Oise","abstentions":"37681","exprimes":"15580","inscrits":"54554","votants":"16873","nua_vainqueur":"SOC","civ":"M.","name_winner":"François PUPPONI","voix":"10252","pc_inscrits":"19","taux_abstention":"69,1","score":65.8,"this_key":"SOC","this_value":65.8,"total":65.8},{"id_circ":"069-14","nom_departement":"Rhône","abstentions":"50980","exprimes":"20906","inscrits":"74256","votants":"23276","nua_vainqueur":"REM","civ":"M.","name_winner":"Yves BLEIN","voix":"13714","pc_inscrits":"18","taux_abstention":"68,7","score":65.6,"this_key":"REM","this_value":65.6,"total":65.6},{"id_circ":"093-11","nom_departement":"Seine-Saint-Denis","abstentions":"42972","exprimes":"18418","inscrits":"62665","votants":"19693","nua_vainqueur":"FI","civ":"Mme","name_winner":"Clémentine AUTAIN","voix":"10962","pc_inscrits":"17","taux_abstention":"68,6","score":59.5,"this_key":"FI","this_value":59.5,"total":59.5},{"id_circ":"093-01","nom_departement":"Seine-Saint-Denis","abstentions":"41892","exprimes":"18541","inscrits":"61804","votants":"19912","nua_vainqueur":"FI","civ":"M.","name_winner":"Éric COQUEREL","voix":"9590","pc_inscrits":"16","taux_abstention":"67,8","score":51.7,"this_key":"FI","this_value":51.7,"total":51.7},{"id_circ":"059-10","nom_departement":"Nord","abstentions":"55525","exprimes":"23542","inscrits":"82008","votants":"26483","nua_vainqueur":"LR","civ":"M.","name_winner":"Vincent LEDOUX","voix":"13168","pc_inscrits":"16","taux_abstention":"67,7","score":55.9,"this_key":"LR","this_value":55.9,"total":55.9},{"id_circ":"093-10","nom_departement":"Seine-Saint-Denis","abstentions":"46393","exprimes":"19783","inscrits":"68698","votants":"22305","nua_vainqueur":"LR","civ":"M.","name_winner":"Alain RAMADIER","voix":"10470","pc_inscrits":"15","taux_abstention":"67,5","score":52.9,"this_key":"LR","this_value":52.9,"total":52.9},{"id_circ":"057-08","nom_departement":"Moselle","abstentions":"62211","exprimes":"27447","inscrits":"92436","votants":"30225","nua_vainqueur":"MDM","civ":"M.","name_winner":"Brahim HAMMOUCHE","voix":"16150","pc_inscrits":"17","taux_abstention":"67,3","score":58.8,"this_key":"MDM","this_value":58.8,"total":58.8},{"id_circ":"093-12","nom_departement":"Seine-Saint-Denis","abstentions":"43339","exprimes":"19235","inscrits":"64794","votants":"21455","nua_vainqueur":"REM","civ":"M.","name_winner":"Stéphane TESTE","voix":"10196","pc_inscrits":"16","taux_abstention":"66,9","score":53,"this_key":"REM","this_value":53,"total":53},{"id_circ":"972-03","nom_departement":"Martinique","abstentions":"43693","exprimes":"20440","inscrits":"65399","votants":"21706","nua_vainqueur":"DVG","civ":"M.","name_winner":"Serge LETCHIMY","voix":"15114","pc_inscrits":"23","taux_abstention":"66,8","score":73.9,"this_key":"DVG","this_value":73.9,"total":73.9},{"id_circ":"093-05","nom_departement":"Seine-Saint-Denis","abstentions":"42323","exprimes":"19282","inscrits":"63848","votants":"21525","nua_vainqueur":"UDI","civ":"M.","name_winner":"Jean-Christophe LAGARDE","voix":"12745","pc_inscrits":"20","taux_abstention":"66,3","score":66.1,"this_key":"UDI","this_value":66.1,"total":66.1},{"id_circ":"069-07","nom_departement":"Rhône","abstentions":"44931","exprimes":"20678","inscrits":"68017","votants":"23086","nua_vainqueur":"REM","civ":"Mme","name_winner":"Anissa KHEDHER","voix":"10463","pc_inscrits":"15","taux_abstention":"66,1","score":50.6,"this_key":"REM","this_value":50.6,"total":50.6},{"id_circ":"972-02","nom_departement":"Martinique","abstentions":"53867","exprimes":"25295","inscrits":"81667","votants":"27800","nua_vainqueur":"DVG","civ":"M.","name_winner":"Bruno Nestor AZEROT","voix":"14110","pc_inscrits":"17","taux_abstention":"66","score":55.8,"this_key":"DVG","this_value":55.8,"total":55.8},{"id_circ":"012-02","nom_departement":"Aveyron","abstentions":"46063","exprimes":"16013","inscrits":"69769","votants":"23706","nua_vainqueur":"REM","civ":"Mme","name_winner":"Anne BLANC","voix":"16013","pc_inscrits":"23","taux_abstention":"66","score":100,"this_key":"REM","this_value":100,"total":100},{"id_circ":"095-05","nom_departement":"Val-d'Oise","abstentions":"45100","exprimes":"20970","inscrits":"68484","votants":"23384","nua_vainqueur":"REM","civ":"Mme","name_winner":"Fiona LAZAAR","voix":"12523","pc_inscrits":"18","taux_abstention":"65,9","score":59.7,"this_key":"REM","this_value":59.7,"total":59.7},{"id_circ":"093-06","nom_departement":"Seine-Saint-Denis","abstentions":"34666","exprimes":"16718","inscrits":"52593","votants":"17927","nua_vainqueur":"FI","civ":"M.","name_winner":"Bastien LACHAUD","voix":"9196","pc_inscrits":"17","taux_abstention":"65,9","score":55,"this_key":"FI","this_value":55,"total":55},{"id_circ":"092-01","nom_departement":"Hauts-de-Seine","abstentions":"40913","exprimes":"19852","inscrits":"62486","votants":"21573","nua_vainqueur":"COM","civ":"Mme","name_winner":"Elsa FAUCILLON","voix":"10955","pc_inscrits":"18","taux_abstention":"65,5","score":55.2,"this_key":"COM","this_value":55.2,"total":55.2},{"id_circ":"971-04","nom_departement":"Guadeloupe","abstentions":"45300","exprimes":"21753","inscrits":"69233","votants":"23933","nua_vainqueur":"SOC","civ":"Mme","name_winner":"Hélène VAINQUEUR-CHRISTOPHE","voix":"13403","pc_inscrits":"19","taux_abstention":"65,4","score":61.6,"this_key":"SOC","this_value":61.6,"total":61.6},{"id_circ":"971-01","nom_departement":"Guadeloupe","abstentions":"49758","exprimes":"23726","inscrits":"76233","votants":"26475","nua_vainqueur":"REM","civ":"M.","name_winner":"Olivier SERVA","voix":"14648","pc_inscrits":"19","taux_abstention":"65,3","score":61.7,"this_key":"REM","this_value":61.7,"total":61.7},{"id_circ":"054-03","nom_departement":"Meurthe-et-Moselle","abstentions":"53649","exprimes":"26553","inscrits":"82580","votants":"28931","nua_vainqueur":"REM","civ":"M.","name_winner":"Xavier PALUSZKIEWICZ","voix":"13917","pc_inscrits":"17","taux_abstention":"65","score":52.4,"this_key":"REM","this_value":52.4,"total":52.4},{"id_circ":"973-02","nom_departement":"Guyane","abstentions":"25586","exprimes":"13283","inscrits":"39422","votants":"13836","nua_vainqueur":"REM","civ":"M.","name_winner":"Lénaïck ADAM","voix":"6670","pc_inscrits":"17","taux_abstention":"64,9","score":50.2,"this_key":"REM","this_value":50.2,"total":50.2}];
+
+var chartFormParameters = {"rotateXRow":{"value":false,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1},"chart_width":{"value":0,"type":"slider","label":"Largeur du graphique","initial_value":0,"min":-100,"max":100,"activated":1},"chart_height":{"value":0,"type":"slider","label":"Hauteur du graphique","initial_value":0,"min":-100,"max":100,"activated":1},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1},"padding_left":{"value":0,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1},"sort_descending":{"value":true,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1},"minX":{"value":true,"type":"checkSlider","label":"Valeur min X","initial_value":true,"calculated_value":null,"manual_value":null,"activated":1},"maxX":{"value":true,"type":"checkSlider","label":"Valeur max X","initial_value":true,"calculated_value":null,"manual_value":null,"activated":1},"minY":{"value":true,"type":"checkSlider","label":"Valeur min Y","initial_value":true,"calculated_value":0,"manual_value":null,"activated":1},"maxY":{"value":true,"type":"checkSlider","label":"Valeur max Y","initial_value":true,"calculated_value":100,"manual_value":null,"activated":1},"color_field_select":{"value":"schemeDark2","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"schemeDark2","activated":0,"fields":["libeCategoricalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"]}};
+
+var graphParameters = {"selected_xRows":["nua_vainqueur"],"selected_yRows":["score"],"selected_size":[],"selected_color":[],"selected_label":[],"additionnalParam":"","selected_graph":"beeSwarnChart","chartTitle":"Scores des partis politiques"};
+
+var parametersType = [{
+  selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+{selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+{selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+{selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+{selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+];
+
+var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+var color = d3.scaleOrdinal(d3.schemeDark2);
+
+var parseTime = d3.timeParse('%Y/%m/%d');
+
+d3.select("#chart")
+.attr("class", graphParameters.selected_graph);
+
+d3.select("#chartTitle")
+      .text(graphParameters['chartTitle']);
+
+function initChart() {
+
+    var svg = d3.select("svg");
+
+    margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 40
+    };
+
+    width = +svg.attr("width") - margin.left - margin.right;
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+    var g = svg.append("g")
+        .attr('class', 'graphContainer')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")");
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .attr('transform', 'translate(0,0)');
+
+    g.append("g")
+        .attr('class', 'innerGraph');
+
+}
+
+function makeBeeSwarnChart(data_) {
+
+    var kValue = graphParameters['selected_xRows'][0];
+    var dValue = graphParameters['selected_yRows'][0];
+
+    var dValues = graphParameters['selected_yRows'];
+
+    var keys = graphParameters['selected_yRows'];
+
+    data_.forEach(function(d) {
+        d[dValue] = formatNumbers(d[dValue]);
+        d.this_key = d[kValue];
+        d.this_value = formatNumbers(d[dValue]);
+
+        var this_total = 0;
+
+        for (i in keys){
+            d[dValues[i]] = +d[dValues[i]];
+            this_total = this_total + d[dValues[i]];
+        }
+
+        d.total = this_total;
+    })
+
+
+
+    var svg = d3.select("svg");
+    var g = svg.select('g.graphContainer');
+    var g_inner = g.select('g.innerGraph');
+
+    updateParameters();
+
+
+
+    chartFormParameters.minY.calculated_value =  0;
+    chartFormParameters.maxY.calculated_value =  d3.max(data_, function(d) { return d[dValue]; });
+
+    var thisYMin = chartFormParameters.minY.value ?  chartFormParameters.minY.calculated_value : chartFormParameters.minY.manual_value ? chartFormParameters.minY.manual_value : chartFormParameters.minY.calculated_value;
+    var thisYMax = chartFormParameters.maxY.value ?  chartFormParameters.maxY.calculated_value : chartFormParameters.maxY.manual_value ? chartFormParameters.maxY.manual_value : chartFormParameters.maxY.calculated_value;
+
+//     // reGenerateParameters();
+
+
+    if (chartFormParameters.sort_descending.value == 1){
+    data = _.cloneDeep(data_).sort(function(a, b) { return b.total - a.total; });
+    }
+    else{
+        data = _.cloneDeep(data_);
+    }
+
+
+ x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+
+// var x1 = d3.scaleBand().padding(0.05);
+
+y = d3.scaleLinear().rangeRound([height, 0]);
+
+
+  
+  x.domain(_.uniq(data.map(function(d) { return d[kValue]; })));
+  // x1.domain(keys).rangeRound([0, x0.bandwidth()]);
+  y.domain([thisYMin, thisYMax]).nice();
+  // z.domain(dValues);
+
+
+  var simulation = d3.forceSimulation(data)
+      .force("y", d3.forceY(function(d) { return y(d[dValue]); }).strength(1))
+      .force("x", d3.forceX(function(d) {return x(d[kValue])}))
+      .force("collide", d3.forceCollide(5))
+      .stop();
+
+  for (var i = 0; i < 120; ++i) simulation.tick();
+
+
+
+    g.select('g.innerGraph')
+    .attr("transform", "translate(" + chartFormParameters.padding_left.value + ",0)");
+
+
+    g.select("g.axis.axis--x")
+    .attr("transform", "translate(" + chartFormParameters.padding_left.value + "," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .style("text-anchor", "middle")
+        .attr("dx", "0em")
+        .attr("dy", "0.7em")
+        .attr("transform", "rotate(0)")
+        ;
+
+if (chartFormParameters.rotateXRow.value == true){
+
+    g.select("g.axis.axis--x")
+    .attr("transform", "translate(" + chartFormParameters.padding_left.value + "," + height + ")")
+        .selectAll("g.tick")
+        .select("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-40)");
+
+}
+
+    g.select("g.axis.axis--y")
+    .attr("transform", "translate(" + (chartFormParameters.padding_left.value) + ", 0)")
+    // .attr('transform', 'translate(0,0)')
+        .call(d3.axisLeft(y)
+        );
+
+
+  // var all_grouped_bars = g_inner
+  //   .selectAll("g")
+  //   .data(data);
+
+
+    // all_grouped_bars.exit().transition().duration(200).remove();
+
+
+    // all_grouped_bars
+    // .attr("transform", function(d) { return "translate(" + x0(d[kValue]) + ",0)"; })
+    // ;
+
+  var cells = g_inner
+      .selectAll("g.cell")
+    .data(d3.voronoi()
+        .extent([[0, 0], [width + margin.right, height + margin.top]])
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+      .polygons(data));
+
+
+    cells.exit().remove();
+
+    cells
+    .select('circle')
+      .attr("r", 3)
+      .attr("cx", function(d) { return + d.data.x + x.bandwidth()/2; })
+      .attr("cy", function(d) { return d.data.y; })
+      .attr('fill', function(d){ return color(d.data[kValue])})
+      .attr('stroke', function(d){return color(d.data[kValue])});
+
+
+    var cells_entered = cells
+    .enter()
+    .append("g")
+    .attr('class', 'cell')
+      //     .on('mouseover', function(d, i){ show_tooltip(d.data, d3.event.pageX, d3.event.pageY, d3.event, i)})
+      // .on('mouseout', function(d){ hide_tooltip()})
+      ;
+
+cells_entered.append("circle")
+      .attr("r", 3)
+      .attr("cx", function(d) { return + d.data.x + x.bandwidth()/2; })
+      .attr("cy", function(d) { return d.data.y; })
+      .attr('fill', function(d){return color(d.data[kValue])})
+      .attr('stroke', function(d){return color(d.data[kValue])})
+      .on('mouseover', function(d, i){
+        // console.log(d); 
+        show_tooltip(d.data);
+  }
+
+        )
+      .on('mouseout', function(d){ hide_tooltip()});
+      ;
+
+
+
+}
+
+initChart();
+
+makeBeeSwarnChart(data);
+
+
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+      var d = d.data ? d.data : d;
+
+        if (d){
+
+          console.log(d);
+
+
+        d3.select("#tooltip").style('display', 'block');
+
+        var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+        var dx = d3.event.pageX;
+        var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+        var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+          graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+      
+
+        );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+        d3.select("#tooltip")
+        .classed('is-active', false);
+
+        d3.select("#tooltip")
+        .style('display', 'none');
+
+    }
+
+function updateParameters(){
+
+  var svg = d3.select("svg");
+
+
+
+  svg
+  .attr('width', initTotalWidth + chartFormParameters.chart_width.value);
+
+  svg
+  .attr('height', initTotalHeight + chartFormParameters.chart_height.value);
+
+  width = initWidth  - chartFormParameters.padding_left.value + chartFormParameters.chart_width.value;
+  height = initHeight - chartFormParameters.padding_bottom.value + chartFormParameters.chart_height.value;
+
+
+
+}
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+new_n = +new_n;
+
+return new_n  
+
+}
+
+function arrayIfObject(objectData) {
+
+    var arrayData = objectData.map(function(d) { return d3.values(d) });
+    arrayData.unshift(d3.keys(objectData[0]));
+    return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+    var objectData = arrayData.slice(1).map(function(d) {
+        var this_object = {}
+        for (i in arrayData[0]) {
+            this_object[arrayData[0][i]] = d[i];
+        }
+        return this_object
+    })
+    return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+    var result = d3.nest()
+        .key(function(d) { return d[key] })
+        .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+        })
+        .entries(data)
+    return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+    var new_data = [];
+
+    for (i in dValues) {
+        var v = dValues[i];
+
+        new_data.push(data.map(function(d) {
+            return {
+                x_value: +d[kValue],
+                name: v,
+                y_value: +d[v]
+            }
+        }));
+    }
+
+    return new_data
+}
+
+function emptyChart(){
+
+    d3.select('#varSwitch').selectAll("*").remove();
+    d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+    d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+    d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+	</script>
+</body>
+</html>

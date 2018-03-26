@@ -1,0 +1,1186 @@
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evolution de la dette publique du Royaume-Uni</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+  <link type="text/css" rel="stylesheet" href="https://statics.liberation.fr/newsite/css/fonts.css">
+  <link rel="stylesheet" href="../utilities/css/bulma-custom.css">
+  <link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+
+  <section>
+    <div id="chart">
+      <h3 id="chartTitle"></h3>
+      <div id="varSwitch" class='tags'></div>
+      <svg width="600" height="400"></svg>
+      <footer>
+        <div class="credits">
+          <a href="http://www.liberation.fr/data-nouveaux-formats-six-plus,100538" target="_blank">Six Plus</a>
+        </div>
+        <div class="sources">Source: <span id="chartSource">Libération</span></div>
+      </footer>
+
+    </div>
+  </section>
+
+
+  <!-- JS -->
+  <script src="../utilities/js/jquery-1.10.2.js"></script>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="../utilities/js/d3-annotation.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.min.js"></script>
+  <script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+  <script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="../utilities/js/moment-with-locales.min.js"></script>
+  <!-- <script src="static/js/app.js"></script> -->
+<script type="text/javascript" src="../utilities/js/iframeResizer.contentWindow.min.js"></script>
+  <script type="text/javascript">
+
+   var margin = {},
+   width,
+   height;
+   var initMargin = {
+    top: 20,
+    right: 20,
+    bottom: 60,
+    left: 40
+  };
+
+
+  var initTotalWidth = 600;
+  var initTotalHeight = 400;
+
+  var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+  var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+  var libeCategoricalColors = ['#e61e49', '#7c7c7c', '#000'];
+
+  var political_colors_obj = {
+    'EXG': "#751719",
+    'FI': "#cd0420",
+    "COM":'#af0e1d',
+    "ECO":'#52ae56',
+    "SOC":'#e6467e',
+    "DVG":'#f46099',
+    "RDG":'#f781b6',
+    'DIV': "#cccccc",
+    'REG': "#666",
+    "REM":'#ffb400',
+    "MDM":'#e85d21',
+    "UDI":'#9f64a2',
+    "DVD":'#026db5',
+    "LR":'#0058a2',
+    "DLF":'#003366',
+    "EXD":'#03034f',
+    "FN":'#000032'
+  };
+
+  var LibePoliticalColors =["#751719", "#cd0420", "#af0e1d", "#52ae56", "#e6467e", "#f46099", "#f781b6", "#cccccc", "#666", "#ffb400", "#e85d21", "#9f64a2", "#026db5", "#0058a2", "#003366", "#03034f", "#000032"];
+
+  var color = d3.scaleOrdinal(libeCategoricalColors);
+
+
+  var categorical_color_sheme = ['libeCategoricalColors', 'LibePoliticalColors', 'schemeDark2', 'schemeAccent', 'schemePastel2', 'schemeSet2', 'schemeSet1', 'schemePastel1', 
+  'schemeCategory10', 'schemeSet3', 'schemePaired', 'schemeCategory20', 'schemeCategory20b', 'schemeCategory20c'];
+
+  var basicColors = {plain:{initial:"#e61e49", personalized:null}, positive:{initial:'#85b4b2', personalized:null}, negative:{initial:"#e61e49", personalized:null}};
+
+
+  var data = [{"DATE":"1700-01-01","dette publique en % du pib":"19.7"},{"DATE":"1701-01-01","dette publique en % du pib":"19.0"},{"DATE":"1702-01-01","dette publique en % du pib":"19.5"},{"DATE":"1703-01-01","dette publique en % du pib":"21.2"},{"DATE":"1704-01-01","dette publique en % du pib":"18.5"},{"DATE":"1705-01-01","dette publique en % du pib":"20.5"},{"DATE":"1706-01-01","dette publique en % du pib":"29.1"},{"DATE":"1707-01-01","dette publique en % du pib":"29.0"},{"DATE":"1708-01-01","dette publique en % du pib":"29.3"},{"DATE":"1709-01-01","dette publique en % du pib":"34.1"},{"DATE":"1710-01-01","dette publique en % du pib":"37.2"},{"DATE":"1711-01-01","dette publique en % du pib":"40.9"},{"DATE":"1712-01-01","dette publique en % du pib":"54.2"},{"DATE":"1713-01-01","dette publique en % du pib":"59.2"},{"DATE":"1714-01-01","dette publique en % du pib":"54.5"},{"DATE":"1715-01-01","dette publique en % du pib":"62.3"},{"DATE":"1716-01-01","dette publique en % du pib":"61.0"},{"DATE":"1717-01-01","dette publique en % du pib":"59.2"},{"DATE":"1718-01-01","dette publique en % du pib":"56.3"},{"DATE":"1719-01-01","dette publique en % du pib":"59.8"},{"DATE":"1720-01-01","dette publique en % du pib":"55.4"},{"DATE":"1721-01-01","dette publique en % du pib":"58.6"},{"DATE":"1722-01-01","dette publique en % du pib":"58.9"},{"DATE":"1723-01-01","dette publique en % du pib":"59.6"},{"DATE":"1724-01-01","dette publique en % du pib":"59.9"},{"DATE":"1725-01-01","dette publique en % du pib":"56.6"},{"DATE":"1726-01-01","dette publique en % du pib":"57.1"},{"DATE":"1727-01-01","dette publique en % du pib":"58.1"},{"DATE":"1728-01-01","dette publique en % du pib":"53.1"},{"DATE":"1729-01-01","dette publique en % du pib":"56.7"},{"DATE":"1730-01-01","dette publique en % du pib":"58.4"},{"DATE":"1731-01-01","dette publique en % du pib":"59.7"},{"DATE":"1732-01-01","dette publique en % du pib":"56.9"},{"DATE":"1733-01-01","dette publique en % du pib":"54.9"},{"DATE":"1734-01-01","dette publique en % du pib":"54.4"},{"DATE":"1735-01-01","dette publique en % du pib":"54.9"},{"DATE":"1736-01-01","dette publique en % du pib":"52.0"},{"DATE":"1737-01-01","dette publique en % du pib":"54.5"},{"DATE":"1738-01-01","dette publique en % du pib":"53.3"},{"DATE":"1739-01-01","dette publique en % du pib":"53.0"},{"DATE":"1740-01-01","dette publique en % du pib":"50.7"},{"DATE":"1741-01-01","dette publique en % du pib":"50.3"},{"DATE":"1742-01-01","dette publique en % du pib":"52.7"},{"DATE":"1743-01-01","dette publique en % du pib":"57.0"},{"DATE":"1744-01-01","dette publique en % du pib":"61.6"},{"DATE":"1745-01-01","dette publique en % du pib":"66.0"},{"DATE":"1746-01-01","dette publique en % du pib":"67.5"},{"DATE":"1747-01-01","dette publique en % du pib":"70.3"},{"DATE":"1748-01-01","dette publique en % du pib":"74.9"},{"DATE":"1749-01-01","dette publique en % du pib":"75.9"},{"DATE":"1750-01-01","dette publique en % du pib":"75.0"},{"DATE":"1751-01-01","dette publique en % du pib":"75.8"},{"DATE":"1752-01-01","dette publique en % du pib":"69.2"},{"DATE":"1753-01-01","dette publique en % du pib":"67.7"},{"DATE":"1754-01-01","dette publique en % du pib":"68.0"},{"DATE":"1755-01-01","dette publique en % du pib":"67.6"},{"DATE":"1756-01-01","dette publique en % du pib":"67.6"},{"DATE":"1757-01-01","dette publique en % du pib":"63.4"},{"DATE":"1758-01-01","dette publique en % du pib":"67.3"},{"DATE":"1759-01-01","dette publique en % du pib":"77.7"},{"DATE":"1760-01-01","dette publique en % du pib":"85.0"},{"DATE":"1761-01-01","dette publique en % du pib":"94.5"},{"DATE":"1762-01-01","dette publique en % du pib":"104.2"},{"DATE":"1763-01-01","dette publique en % du pib":"103.3"},{"DATE":"1764-01-01","dette publique en % du pib":"102.7"},{"DATE":"1765-01-01","dette publique en % du pib":"102.1"},{"DATE":"1766-01-01","dette publique en % du pib":"99.5"},{"DATE":"1767-01-01","dette publique en % du pib":"95.7"},{"DATE":"1768-01-01","dette publique en % du pib":"96.9"},{"DATE":"1769-01-01","dette publique en % du pib":"93.9"},{"DATE":"1770-01-01","dette publique en % du pib":"95.3"},{"DATE":"1771-01-01","dette publique en % du pib":"88.8"},{"DATE":"1772-01-01","dette publique en % du pib":"88.0"},{"DATE":"1773-01-01","dette publique en % du pib":"86.2"},{"DATE":"1774-01-01","dette publique en % du pib":"86.0"},{"DATE":"1775-01-01","dette publique en % du pib":"83.2"},{"DATE":"1776-01-01","dette publique en % du pib":"84.6"},{"DATE":"1777-01-01","dette publique en % du pib":"83.9"},{"DATE":"1778-01-01","dette publique en % du pib":"90.0"},{"DATE":"1779-01-01","dette publique en % du pib":"101.2"},{"DATE":"1780-01-01","dette publique en % du pib":"107.5"},{"DATE":"1781-01-01","dette publique en % du pib":"104.3"},{"DATE":"1782-01-01","dette publique en % du pib":"117.3"},{"DATE":"1783-01-01","dette publique en % du pib":"128.5"},{"DATE":"1784-01-01","dette publique en % du pib":"136.6"},{"DATE":"1785-01-01","dette publique en % du pib":"137.9"},{"DATE":"1786-01-01","dette publique en % du pib":"128.5"},{"DATE":"1787-01-01","dette publique en % du pib":"132.3"},{"DATE":"1788-01-01","dette publique en % du pib":"136.2"},{"DATE":"1789-01-01","dette publique en % du pib":"135.0"},{"DATE":"1790-01-01","dette publique en % du pib":"122.8"},{"DATE":"1791-01-01","dette publique en % du pib":"121.7"},{"DATE":"1792-01-01","dette publique en % du pib":"110.5"},{"DATE":"1793-01-01","dette publique en % du pib":"115.1"},{"DATE":"1794-01-01","dette publique en % du pib":"124.3"},{"DATE":"1795-01-01","dette publique en % du pib":"121.4"},{"DATE":"1796-01-01","dette publique en % du pib":"130.1"},{"DATE":"1797-01-01","dette publique en % du pib":"139.8"},{"DATE":"1798-01-01","dette publique en % du pib":"146.1"},{"DATE":"1799-01-01","dette publique en % du pib":"138.0"},{"DATE":"1800-01-01","dette publique en % du pib":"128.5"},{"DATE":"1801-01-01","dette publique en % du pib":"132.0"},{"DATE":"1802-01-01","dette publique en % du pib":"156.1"},{"DATE":"1803-01-01","dette publique en % du pib":"161.0"},{"DATE":"1804-01-01","dette publique en % du pib":"157.7"},{"DATE":"1805-01-01","dette publique en % du pib":"151.8"},{"DATE":"1806-01-01","dette publique en % du pib":"154.8"},{"DATE":"1807-01-01","dette publique en % du pib":"148.2"},{"DATE":"1808-01-01","dette publique en % du pib":"154.0"},{"DATE":"1809-01-01","dette publique en % du pib":"143.9"},{"DATE":"1810-01-01","dette publique en % du pib":"132.2"},{"DATE":"1811-01-01","dette publique en % du pib":"140.8"},{"DATE":"1812-01-01","dette publique en % du pib":"144.7"},{"DATE":"1813-01-01","dette publique en % du pib":"149.9"},{"DATE":"1814-01-01","dette publique en % du pib":"161.7"},{"DATE":"1815-01-01","dette publique en % du pib":"165.1"},{"DATE":"1816-01-01","dette publique en % du pib":"183.6"},{"DATE":"1817-01-01","dette publique en % du pib":"175.7"},{"DATE":"1818-01-01","dette publique en % du pib":"169.2"},{"DATE":"1819-01-01","dette publique en % du pib":"179.4"},{"DATE":"1820-01-01","dette publique en % du pib":"176.8"},{"DATE":"1821-01-01","dette publique en % du pib":"182.9"},{"DATE":"1822-01-01","dette publique en % du pib":"194.1"},{"DATE":"1823-01-01","dette publique en % du pib":"186.9"},{"DATE":"1824-01-01","dette publique en % du pib":"172.5"},{"DATE":"1825-01-01","dette publique en % du pib":"154.5"},{"DATE":"1826-01-01","dette publique en % du pib":"175.2"},{"DATE":"1827-01-01","dette publique en % du pib":"168.1"},{"DATE":"1828-01-01","dette publique en % du pib":"167.1"},{"DATE":"1829-01-01","dette publique en % du pib":"172.1"},{"DATE":"1830-01-01","dette publique en % du pib":"164.3"},{"DATE":"1831-01-01","dette publique en % du pib":"166.6"},{"DATE":"1832-01-01","dette publique en % du pib":"166.8"},{"DATE":"1833-01-01","dette publique en % du pib":"170.5"},{"DATE":"1834-01-01","dette publique en % du pib":"160.9"},{"DATE":"1835-01-01","dette publique en % du pib":"155.1"},{"DATE":"1836-01-01","dette publique en % du pib":"143.7"},{"DATE":"1837-01-01","dette publique en % du pib":"147.0"},{"DATE":"1838-01-01","dette publique en % du pib":"140.2"},{"DATE":"1839-01-01","dette publique en % du pib":"135.0"},{"DATE":"1840-01-01","dette publique en % du pib":"140.0"},{"DATE":"1841-01-01","dette publique en % du pib":"143.9"},{"DATE":"1842-01-01","dette publique en % du pib":"151.2"},{"DATE":"1843-01-01","dette publique en % du pib":"150.1"},{"DATE":"1844-01-01","dette publique en % du pib":"139.1"},{"DATE":"1845-01-01","dette publique en % du pib":"129.9"},{"DATE":"1846-01-01","dette publique en % du pib":"127.3"},{"DATE":"1847-01-01","dette publique en % du pib":"122.7"},{"DATE":"1848-01-01","dette publique en % du pib":"128.4"},{"DATE":"1849-01-01","dette publique en % du pib":"125.5"},{"DATE":"1850-01-01","dette publique en % du pib":"134.9"},{"DATE":"1851-01-01","dette publique en % du pib":"130.3"},{"DATE":"1852-01-01","dette publique en % du pib":"125.1"},{"DATE":"1853-01-01","dette publique en % du pib":"110.5"},{"DATE":"1854-01-01","dette publique en % du pib":"103.0"},{"DATE":"1855-01-01","dette publique en % du pib":"104.9"},{"DATE":"1856-01-01","dette publique en % du pib":"100.8"},{"DATE":"1857-01-01","dette publique en % du pib":"101.4"},{"DATE":"1858-01-01","dette publique en % du pib":"105.7"},{"DATE":"1859-01-01","dette publique en % du pib":"98.2"},{"DATE":"1860-01-01","dette publique en % du pib":"96.0"},{"DATE":"1861-01-01","dette publique en % du pib":"92.5"},{"DATE":"1862-01-01","dette publique en % du pib":"92.2"},{"DATE":"1863-01-01","dette publique en % du pib":"84.9"},{"DATE":"1864-01-01","dette publique en % du pib":"80.4"},{"DATE":"1865-01-01","dette publique en % du pib":"78.4"},{"DATE":"1866-01-01","dette publique en % du pib":"75.5"},{"DATE":"1867-01-01","dette publique en % du pib":"75.8"},{"DATE":"1868-01-01","dette publique en % du pib":"75.0"},{"DATE":"1869-01-01","dette publique en % du pib":"73.0"},{"DATE":"1870-01-01","dette publique en % du pib":"68.0"},{"DATE":"1871-01-01","dette publique en % du pib":"63.2"},{"DATE":"1872-01-01","dette publique en % du pib":"59.4"},{"DATE":"1873-01-01","dette publique en % du pib":"56.4"},{"DATE":"1874-01-01","dette publique en % du pib":"56.2"},{"DATE":"1875-01-01","dette publique en % du pib":"57.5"},{"DATE":"1876-01-01","dette publique en % du pib":"58.2"},{"DATE":"1877-01-01","dette publique en % du pib":"59.0"},{"DATE":"1878-01-01","dette publique en % du pib":"60.2"},{"DATE":"1879-01-01","dette publique en % du pib":"62.5"},{"DATE":"1880-01-01","dette publique en % du pib":"58.3"},{"DATE":"1881-01-01","dette publique en % du pib":"57.0"},{"DATE":"1882-01-01","dette publique en % du pib":"55.0"},{"DATE":"1883-01-01","dette publique en % du pib":"54.2"},{"DATE":"1884-01-01","dette publique en % du pib":"55.3"},{"DATE":"1885-01-01","dette publique en % du pib":"56.5"},{"DATE":"1886-01-01","dette publique en % du pib":"55.9"},{"DATE":"1887-01-01","dette publique en % du pib":"52.0"},{"DATE":"1888-01-01","dette publique en % du pib":"49.2"},{"DATE":"1889-01-01","dette publique en % du pib":"46.2"},{"DATE":"1890-01-01","dette publique en % du pib":"44.8"},{"DATE":"1891-01-01","dette publique en % du pib":"44.3"},{"DATE":"1892-01-01","dette publique en % du pib":"44.9"},{"DATE":"1893-01-01","dette publique en % du pib":"44.7"},{"DATE":"1894-01-01","dette publique en % du pib":"42.0"},{"DATE":"1895-01-01","dette publique en % du pib":"40.7"},{"DATE":"1896-01-01","dette publique en % du pib":"39.0"},{"DATE":"1897-01-01","dette publique en % du pib":"37.7"},{"DATE":"1898-01-01","dette publique en % du pib":"35.5"},{"DATE":"1899-01-01","dette publique en % du pib":"33.7"},{"DATE":"1900-01-01","dette publique en % du pib":"35.0"},{"DATE":"1901-01-01","dette publique en % du pib":"37.9"},{"DATE":"1902-01-01","dette publique en % du pib":"39.7"},{"DATE":"1903-01-01","dette publique en % du pib":"40.4"},{"DATE":"1904-01-01","dette publique en % du pib":"40.4"},{"DATE":"1905-01-01","dette publique en % du pib":"38.8"},{"DATE":"1906-01-01","dette publique en % du pib":"36.9"},{"DATE":"1907-01-01","dette publique en % du pib":"34.9"},{"DATE":"1908-01-01","dette publique en % du pib":"36.0"},{"DATE":"1909-01-01","dette publique en % du pib":"35.6"},{"DATE":"1910-01-01","dette publique en % du pib":"33.3"},{"DATE":"1911-01-01","dette publique en % du pib":"31.2"},{"DATE":"1912-01-01","dette publique en % du pib":"29.6"},{"DATE":"1913-01-01","dette publique en % du pib":"28.3"},{"DATE":"1914-01-01","dette publique en % du pib":"41.4"},{"DATE":"1915-01-01","dette publique en % du pib":"63.7"},{"DATE":"1916-01-01","dette publique en % du pib":"102.2"},{"DATE":"1917-01-01","dette publique en % du pib":"125.4"},{"DATE":"1918-01-01","dette publique en % du pib":"137.3"},{"DATE":"1919-01-01","dette publique en % du pib":"140.2"},{"DATE":"1920-01-01","dette publique en % du pib":"125.6"},{"DATE":"1921-01-01","dette publique en % du pib":"160.4"},{"DATE":"1922-01-01","dette publique en % du pib":"178.6"},{"DATE":"1923-01-01","dette publique en % du pib":"185.8"},{"DATE":"1924-01-01","dette publique en % du pib":"179.7"},{"DATE":"1925-01-01","dette publique en % du pib":"173.3"},{"DATE":"1926-01-01","dette publique en % du pib":"179.7"},{"DATE":"1927-01-01","dette publique en % du pib":"169.7"},{"DATE":"1928-01-01","dette publique en % du pib":"169.4"},{"DATE":"1929-01-01","dette publique en % du pib":"165.6"},{"DATE":"1930-01-01","dette publique en % du pib":"168.0"},{"DATE":"1931-01-01","dette publique en % du pib":"180.7"},{"DATE":"1932-01-01","dette publique en % du pib":"188.9"},{"DATE":"1933-01-01","dette publique en % du pib":"189.9"},{"DATE":"1934-01-01","dette publique en % du pib":"179.5"},{"DATE":"1935-01-01","dette publique en % du pib":"171.1"},{"DATE":"1936-01-01","dette publique en % du pib":"162.0"},{"DATE":"1937-01-01","dette publique en % du pib":"155.0"},{"DATE":"1938-01-01","dette publique en % du pib":"153.5"},{"DATE":"1939-01-01","dette publique en % du pib":"153.5"},{"DATE":"1940-01-01","dette publique en % du pib":"155.6"},{"DATE":"1941-01-01","dette publique en % du pib":"160.1"},{"DATE":"1942-01-01","dette publique en % du pib":"175.7"},{"DATE":"1943-01-01","dette publique en % du pib":"192.9"},{"DATE":"1944-01-01","dette publique en % du pib":"219.2"},{"DATE":"1945-01-01","dette publique en % du pib":"242.0"},{"DATE":"1946-01-01","dette publique en % du pib":"259.0"},{"DATE":"1947-01-01","dette publique en % du pib":"244.4"},{"DATE":"1948-01-01","dette publique en % du pib":"219.7"},{"DATE":"1949-01-01","dette publique en % du pib":"208.7"},{"DATE":"1950-01-01","dette publique en % du pib":"200.6"},{"DATE":"1951-01-01","dette publique en % du pib":"178.5"},{"DATE":"1952-01-01","dette publique en % du pib":"165.1"},{"DATE":"1953-01-01","dette publique en % du pib":"156.5"},{"DATE":"1954-01-01","dette publique en % du pib":"150.5"},{"DATE":"1955-01-01","dette publique en % du pib":"139.3"},{"DATE":"1956-01-01","dette publique en % du pib":"128.3"},{"DATE":"1957-01-01","dette publique en % du pib":"121.7"},{"DATE":"1958-01-01","dette publique en % du pib":"116.6"},{"DATE":"1959-01-01","dette publique en % du pib":"112.4"},{"DATE":"1960-01-01","dette publique en % du pib":"106.5"},{"DATE":"1961-01-01","dette publique en % du pib":"101.8"},{"DATE":"1962-01-01","dette publique en % du pib":"100.6"},{"DATE":"1963-01-01","dette publique en % du pib":"96.5"},{"DATE":"1964-01-01","dette publique en % du pib":"89.0"},{"DATE":"1965-01-01","dette publique en % du pib":"84.3"},{"DATE":"1966-01-01","dette publique en % du pib":"80.7"},{"DATE":"1967-01-01","dette publique en % du pib":"80.6"},{"DATE":"1968-01-01","dette publique en % du pib":"74.3"},{"DATE":"1969-01-01","dette publique en % du pib":"67.0"},{"DATE":"1970-01-01","dette publique en % du pib":"59.6"},{"DATE":"1971-01-01","dette publique en % du pib":"56.3"},{"DATE":"1972-01-01","dette publique en % du pib":"52.1"},{"DATE":"1973-01-01","dette publique en % du pib":"48.3"},{"DATE":"1974-01-01","dette publique en % du pib":"53.2"},{"DATE":"1975-01-01","dette publique en % du pib":"53.8"},{"DATE":"1976-01-01","dette publique en % du pib":"52.4"},{"DATE":"1977-01-01","dette publique en % du pib":"49.2"},{"DATE":"1978-01-01","dette publique en % du pib":"46.7"},{"DATE":"1979-01-01","dette publique en % du pib":"43.6"},{"DATE":"1980-01-01","dette publique en % du pib":"42.5"},{"DATE":"1981-01-01","dette publique en % du pib":"42.5"},{"DATE":"1982-01-01","dette publique en % du pib":"41.3"},{"DATE":"1983-01-01","dette publique en % du pib":"40.4"},{"DATE":"1984-01-01","dette publique en % du pib":"41.0"},{"DATE":"1985-01-01","dette publique en % du pib":"39.1"},{"DATE":"1986-01-01","dette publique en % du pib":"37.5"},{"DATE":"1987-01-01","dette publique en % du pib":"34.0"},{"DATE":"1988-01-01","dette publique en % du pib":"28.5"},{"DATE":"1989-01-01","dette publique en % du pib":"25.0"},{"DATE":"1990-01-01","dette publique en % du pib":"22.8"},{"DATE":"1991-01-01","dette publique en % du pib":"23.2"},{"DATE":"1992-01-01","dette publique en % du pib":"26.7"},{"DATE":"1993-01-01","dette publique en % du pib":"31.0"},{"DATE":"1994-01-01","dette publique en % du pib":"34.9"},{"DATE":"1995-01-01","dette publique en % du pib":"37.5"},{"DATE":"1996-01-01","dette publique en % du pib":"38.3"},{"DATE":"1997-01-01","dette publique en % du pib":"38.8"},{"DATE":"1998-01-01","dette publique en % du pib":"36.8"},{"DATE":"1999-01-01","dette publique en % du pib":"35.7"},{"DATE":"2000-01-01","dette publique en % du pib":"30.4"},{"DATE":"2001-01-01","dette publique en % du pib":"29.3"},{"DATE":"2002-01-01","dette publique en % du pib":"30.6"},{"DATE":"2003-01-01","dette publique en % du pib":"31.4"},{"DATE":"2004-01-01","dette publique en % du pib":"34.4"},{"DATE":"2005-01-01","dette publique en % du pib":"35.7"},{"DATE":"2006-01-01","dette publique en % du pib":"36.2"},{"DATE":"2007-01-01","dette publique en % du pib":"36.7"},{"DATE":"2008-01-01","dette publique en % du pib":"46.9"},{"DATE":"2009-01-01","dette publique en % du pib":"61.8"},{"DATE":"2010-01-01","dette publique en % du pib":"72.3"},{"DATE":"2011-01-01","dette publique en % du pib":"76.2"},{"DATE":"2012-01-01","dette publique en % du pib":"80.6"},{"DATE":"2013-01-01","dette publique en % du pib":"83.6"},{"DATE":"2014-01-01","dette publique en % du pib":"85.4"},{"DATE":"2015-01-01","dette publique en % du pib":"86.0"},{"DATE":"2016-01-01","dette publique en % du pib":"87.7"}];
+
+  var manualReusableParameters = {"rotateXRow":{"value":false,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1,"category":"general"},"chart_width":{"value":600,"type":"slider","label":"Largeur du graphique","initial_value":600,"min":300,"max":800,"activated":1,"category":"general"},"chart_height":{"value":400,"type":"slider","label":"Hauteur du graphique","initial_value":400,"min":200,"max":800,"activated":1,"category":"general"},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_left":{"value":0,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_right":{"value":0,"type":"slider","label":"marge droite","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_top":{"value":0,"type":"slider","label":"marge haute","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"sort_descending":{"value":true,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1,"category":"general"},"invert_order":{"value":false,"type":"checkbox","label":"inverser l'ordre","initial_value":false,"activated":0,"category":"general"},"differentAxisY":{"value":false,"type":"checkbox","label":"Adapter l'axe des Y aux données","initial_value":false,"activated":0,"category":"general"},"rangeX":{"type":"checkInputs","label":"Range X personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":0,"category":"general"},"rangeY":{"value":true,"type":"checkInputs","label":"Range Y personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":18.5,"calculated_right_value":259,"manual_left_value":0,"manual_right_value":null,"activated":1,"category":"general"},"color_field_select":{"value":"libeCategoricalColors","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"libeCategoricalColors","activated":0,"fields":["libeCategoricalColors","LibePoliticalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"],"category":"color"},"persColorsCheck":{"value":false,"type":"persColorsCheck","label":"Couleurs personalisées","initial_value":false,"activated":1,"category":"color"},"indice_100":{"value":false,"type":"checkbox","label":"Démarrer à l'indice 100","initial_value":false,"activated":1,"category":"calculs"},"displayLabel":{"value":false,"type":"checkbox","label":"afficher la valeur","initial_value":false,"activated":1,"category":"labels"},"startEndValues":{"type":"checkInputs","label":"Valeurs de début et de fin","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"filter"},"caseLegend":{"type":"checkSelects","label":"Afficher la légende","range":[{"value":"topRight","label":"En haut à droite"},{"value":"topLeft","label":"En haut à gauche"},{"value":"bottomLeft","label":"En bas à gauche"},{"value":"bottomRight","label":"En bas à droite"}],"initial_range_value":"topRight","manual_range_value":null,"activated":1,"category":"legend"},"padding_left_legend":{"value":0,"type":"slider","label":"marge gauche légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"padding_top_legend":{"value":0,"type":"slider","label":"marge haute légende","initial_value":0,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"legendOrientation":{"type":"simpleSelect","label":"Orientation de la légende","range":[{"value":"vertical","label":"Verticale"},{"value":"horizontal","label":"Horizontale"}],"initial_range_value":"vertical","manual_range_value":null,"category":"legend","dependOn":"caseLegend"},"inner_padding_legend":{"value":2,"type":"slider","label":"Marge intérieure de la légende","initial_value":2,"min":-100,"max":100,"category":"legend","dependOn":"caseLegend"},"leftAxisTickNumber":{"value":7,"type":"slider","label":"Nombre de graduations à gauche","initial_value":10,"min":0,"max":20,"activated":1,"category":"grid"},"bottomAxisTickNumber":{"value":5,"type":"slider","label":"Nombre de graduations en bas","initial_value":5,"min":0,"max":20,"activated":1,"category":"grid"},"leftAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe gauche","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"bottomAxisStroke":{"type":"simpleSelect","label":"Couleur de l'axe bas","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#fff","activated":1,"category":"grid"},"ticksStroke":{"type":"simpleSelect","label":"Couleur des graduations","range":[{"value":"black","label":"noir"},{"value":"#3c3c3b","label":"gris foncé"},{"value":"#7c7c7b","label":"gris moyen"},{"value":"#c6c6c6","label":"gris clair"},{"value":"#e4e4e4","label":"gris très clair"},{"value":"#f4f4f4","label":"gris très très clair"},{"value":"#fff","label":"invisible"}],"initial_range_value":"black","manual_range_value":"#e4e4e4","activated":1,"category":"grid"},"leftTickSize":{"type":"simpleSelect","label":"Taille des graduations horizontales","range":[{"value":"small","label":"petites"},{"value":"fullWidth","label":"largeur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"fullWidth","activated":1,"category":"grid"},"bottomTickSize":{"type":"simpleSelect","label":"Taille des graduations verticales","range":[{"value":"small","label":"petites"},{"value":"fullHeight","label":"hauteur complète"},{"value":"invisible","label":"invisibles"}],"initial_range_value":"small","manual_range_value":"small","activated":1,"category":"grid"},"yAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe gauche","initial_value":false,"activated":1,"category":"labels"},"xAxisLabel":{"value":false,"type":"checkbox","label":"Etiquette de l'axe bas","initial_value":false,"activated":1,"category":"labels"},"yAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe gauche","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelPadding":{"value":0,"type":"slider","label":"Marge de l'étiquette de l'axe bas","initial_value":0,"min":-100,"max":100,"category":"labels","activated":false,"dependOn":"xAxisLabel"},"yAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe gauche","category":"labels","activated":false,"dependOn":"yAxisLabel"},"xAxisLabelText":{"type":"simpleInputs","label":"Texte de l'étiquette de l'axe bas","category":"labels","activated":false,"dependOn":"xAxisLabel"},"trimKValue":{"value":true,"type":"checkbox","label":"Supprimer les espaces inutiles","initial_value":true,"activated":0,"category":"textRemplacement"},"hideCircles":{"value":true,"type":"checkbox","label":"Supprimer les cercles","initial_value":false,"activated":1,"category":"general"},"dateField":{"value":true,"type":"checkSelects","label":"Y a-t-il un champ date ?","range":"selectedFields","initial_range_value":"topRight","manual_range_value":"DATE","initial_value":false,"activated":1,"category":"textRemplacement"},"dateFieldFormat":{"value":"YYYY/MM/DD","initial_value":"DD/MM/YYYY","type":"simpleInputs","label":"Format de date","category":"textRemplacement","activated":true,"dependOn":"dateField"},"previousDate":{"type":"simpleInputs","label":"date n-1","category":"textRemplacement","activated":true,"dependOn":"dateField"},"groupingFunction":{"type":"simpleSelect","label":"Fonction de réduction des données","range":[{"value":"sum","label":"Somme"},{"value":"mean","label":"moyenne"},{"value":"median","label":"médianne"}],"initial_range_value":null,"manual_range_value":"sum","activated":0,"category":"calculs"},"logScale":{"value":false,"type":"checkbox","label":"Echelle logarithmique","initial_value":false,"activated":1,"category":"calculs"},"beeswarnRadius":{"value":2,"type":"slider","label":"Taille des points","initial_value":2,"min":1,"max":20,"activated":0,"category":"general"},"beeswarnCollide":{"value":3,"type":"slider","label":"Eloignement des points","initial_value":3,"min":1,"max":20,"activated":0,"category":"general"},"customCode":{"type":"simpleInputs","label":"Ajouter du code js","activated":1,"category":"textRemplacement"}};
+
+  var graphParameters = {"selected_xRows":["DATE"],"selected_yRows":["dette publique en % du pib"],"selected_size":[],"selected_color":[],"selected_label":[],"selected_tooltip":[],"personalizedColorsObject":{},"selectedColorScheme":"libeCategoricalColors","additionnalParam":"","selected_graph":"lineChart","chartTitle":"Evolution de la dette publique du Royaume-Uni","chartSource":"Réserve fédérale de Saint Louis","annotations":[]};
+
+  var manualCustomParameters = {"fieldsToReplace":[]};
+
+  color = findColorsScheme(graphParameters.selectedColorScheme);
+
+
+  graphParameters.annotations.forEach(function(d){
+
+    d.type = d3[d.functionName];
+
+
+  })
+
+  var parametersType = [{
+    selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+    {selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+    {selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+    {selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+    {selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+    ];
+
+    var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+
+    var parseTime = d3.timeParse('%Y/%m/%d');
+
+    d3.select("#chart")
+    .attr("class", graphParameters.selected_graph);
+
+    d3.select("#chartTitle")
+    .text(graphParameters['chartTitle']);
+
+
+        d3.select("#chartSource")
+    .text(graphParameters['chartSource']);
+
+    function initChart() {
+
+      var svg = d3.select("svg")
+      .call(responsivefy);
+
+      margin = {
+        top: 20,
+        right: 20,
+        bottom: 60,
+        left: 50
+      };
+
+      width = +svg.attr("width") - margin.left - margin.right;
+      height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+
+      var g = svg.append("g")
+      .attr('class', 'graphContainer')
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")");
+
+      g.append("g")
+      .attr("class", "axis axis--y")
+      .attr('transform', 'translate(0,0)');
+
+      g.append("g")
+      .attr('class', 'innerGraph');
+
+    }
+
+
+    var makeAnnotations_ = d3.annotation()
+    .editMode(false)
+  // .type(annotationType)
+  ;
+
+
+  var annotationGroup = d3.select("#chart svg")
+  .append("g")
+  .attr("class", "annotation-group");
+
+
+  var annotations = graphParameters.annotations ? graphParameters.annotations : [];
+
+
+  function makeAnnotation(){
+
+
+
+    for (i in makeAnnotations_.annotations()){
+
+      var d = makeAnnotations_.annotations()[i];
+
+// console.log(d);
+// console.log(i);
+
+annotations[i].x = d.x;
+annotations[i].y = d.y;
+annotations[i].dx = d.dx;
+annotations[i].dy = d.dy;
+
+}
+
+makeAnnotations_
+.annotations(annotations)
+
+d3.select("#chart svg g.annotation-group")
+.call(makeAnnotations_);
+
+
+d3.selectAll(".annotation-group .annotations .annotation text")
+      .attr('transform', function(d){return 'rotate(' + (+d.note.orientation) + ')'});
+
+d3.select(".annotation-group").node().parentNode.appendChild(d3.select(".annotation-group").node())
+
+}
+
+
+function makeLinechart(data) {
+
+
+
+      var initial_data = _.cloneDeep(data);
+
+
+
+      var kValue = graphParameters['selected_xRows'][0];
+      var dValues = graphParameters['selected_yRows'];
+      var dValue = dValues[0];
+
+      var svg = d3.select("svg");
+      var g = svg.select('g.graphContainer');
+      var g_inner = g.select('g.innerGraph');
+
+      updateParameters();
+
+      data = recalculateAndTransformValues(initial_data, kValue, dValues)
+
+
+      if (manualReusableParameters.startEndValues.value != 0 && manualReusableParameters.startEndValues.value !== undefined){
+
+        var this_x_values = data.map(function(d){return d[kValue]})
+        var minXval =  manualReusableParameters.startEndValues.manual_left_value ?  manualReusableParameters.startEndValues.manual_left_value : +this_x_values[0];
+        var maxXval =  manualReusableParameters.startEndValues.manual_right_value ?  manualReusableParameters.startEndValues.manual_right_value : +this_x_values[this_x_values.length -1];
+
+        data = data.filter(function(d){return d[kValue] >= minXval && d[kValue] <= maxXval});
+    }
+
+
+    if (manualReusableParameters.indice_100.value == 1){
+
+        if (checkIfpercentageInArray(data, dValues) == true){
+
+
+            data = prepareLineChartIndice100Growth(data, kValue, dValues);
+            console.log(data);
+        }
+        else{
+
+            data = prepareLineChartIndice100Value(data, kValue, dValues);
+        }
+    }
+
+    else{
+      data = prepareLineChartData(data, kValue, dValues);
+  }
+
+
+  manualReusableParameters.rangeY.calculated_left_value =  d3.min(data, function(d) { return d3.min(d, function(e) { return e['y_value'] }) });
+  manualReusableParameters.rangeY.calculated_right_value =  d3.max(data, function(d) { return d3.max(d, function(e) { return e['y_value'] }) });
+
+  var thisYMin = manualReusableParameters.rangeY.value === false ?  manualReusableParameters.rangeY.calculated_left_value : manualReusableParameters.rangeY.manual_left_value !== null ? manualReusableParameters.rangeY.manual_left_value : manualReusableParameters.rangeY.calculated_left_value;
+  var thisYMax = manualReusableParameters.rangeY.value === false ?  manualReusableParameters.rangeY.calculated_right_value : manualReusableParameters.rangeY.manual_right_value !== null ? manualReusableParameters.rangeY.manual_right_value : manualReusableParameters.rangeY.calculated_right_value;
+
+
+
+  var xScale = xScaleType()
+  .domain([d3.min(data, function(d) { return d3.min(d, function(e) { return e['x_value'] }) }),
+    d3.max(data, function(d) { return d3.max(d, function(e) { return e['x_value'] }) }) ])
+  .range([0, width]);
+
+
+  var thisScaleType = manualReusableParameters.logScale.value ? d3.scaleLog(2) : d3.scaleLinear();
+
+  var yScale = thisScaleType
+  .domain([thisYMin,
+    thisYMax
+    ])
+  .range([height, 0]);
+
+  changeAxis(xScale, yScale);
+
+  g.select('g.innerGraph')
+  .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + manualReusableParameters.padding_top.value + ")");
+
+  g.select("g.axis.axis--x")
+  .attr("transform", "translate(" + manualReusableParameters.padding_left.value + "," + (height + manualReusableParameters.padding_top.value) +")")
+  .call(axis_bottom)
+  .selectAll("text")
+  .style("text-anchor", "middle")
+  .attr("dx", "0em")
+  .attr("dy", "0.7em")
+  .attr("transform", "rotate(0)");
+
+  if (manualReusableParameters.rotateXRow.value == true){
+
+    g.select("g.axis.axis--x")
+    .selectAll("g.tick")
+    .select("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-40)");
+
+}
+
+
+g.select("g.axis.axis--y")
+.attr('transform', 'translate(' + manualReusableParameters.padding_left.value + ',' + manualReusableParameters.padding_top.value + ')')
+.call(axis_left);
+
+
+
+var line = d3.line()
+.x(function(d) { return xScale(d.x_value) })
+.y(function(d) { return yScale(d.y_value)
+})
+        // .curve(d3.curveCatmullRom.alpha(0.5))
+
+
+        var allLines = g_inner
+        .selectAll('.line')
+        .data(data);
+
+        allLines
+        .transition()
+        .duration(200)
+        .attr('d', function(d) { return line(d) })
+        .style('stroke', function(d) { return colorUpdated(d[0].name) });
+
+        allLines.exit().transition().duration(200).remove();
+
+        allLines
+        .enter()
+        .append('path')
+        .attr('class', 'line')
+        .attr('d', function(d) { return line(d) })
+        .style('stroke', function(d) { return colorUpdated(d[0].name) })
+        .style('stroke-width', 2)
+        .style('fill', 'none');
+
+        AllDotPoints = g_inner
+        .selectAll('circle.dotPoint')
+        .data(_.flatten(data));
+
+        AllDotPoints
+        // .transition()
+        // .duration(200)
+        .attr('cx', function(d) { return xScale(d.x_value) })
+        .attr('cy', function(d) { return yScale(d.y_value) })
+        .style('fill', function(d) { return colorUpdated(d.name) })
+        .style('fill-opacity', function() { return manualReusableParameters.hideCircles.value ? 0 : 1 });
+
+        AllDotPoints.exit().transition().duration(200).remove();
+
+        AllDotPoints
+        .enter()
+        .append('circle')
+        .attr('class', 'dotPoint')
+        .attr('cx', function(d, i) { return xScale(d.x_value) })
+        .attr('cy', function(d) { return yScale(d.y_value) })
+        .style('fill', function(d) { return colorUpdated(d.name) })
+        .attr('r', 3)
+        .style('stroke-width', 5)
+        .style('stroke', 'white')
+        .style('stroke-opacity', 0)
+        .style('fill-opacity', function() { return manualReusableParameters.hideCircles.value ? 0 : 1 })
+        // .style('fill', 'black')
+        .on('mouseover', function(d, i){ show_tooltip(_.find(initial_data, function(e){
+            return formatNumbersDate(e[graphParameters.selected_xRows[0]], graphParameters.selected_xRows[0]) == d.x_value}), d.name)})
+        .on('mouseout', function(d){ hide_tooltip()});
+        ;
+
+
+        allLabels =  g_inner
+        .selectAll('text.label')
+        .data(data.map(function(d){return d[d.length -1]}));
+
+        var allLabelsE = allLabels
+        .enter()
+        .append('text')
+        .attr('class', 'label');
+
+        allLabels.exit().remove()
+
+        allLabels
+        .merge(allLabelsE)
+        .attr('x', function(d){return xScale(d.x_value) + 6})
+        .attr('y', function(d){return yScale(d.y_value) - 6})
+        .attr('text-anchor', 'start')
+        .text(function(d){return manualReusableParameters.displayLabel.value ? _.capitalize(d.name) : ''})
+        .attr('fill', function(d){return colorUpdated(d.name)});
+
+/// Axis Label
+
+g_inner
+.call(xAxisLabel, graphParameters.selected_xRows[0]);
+
+g_inner
+.call(yAxisLabel, graphParameters.selected_yRows[0]);
+
+  // cell.append("circle")
+  //     .attr("r", radius)
+  //     .attr("cx", function(d) {d.data.x_start =  d.data.x; return d.data.x; })
+  //     .attr("cy", function(d) { d.data.y_start =  d.data.y;  return d.data.y; })
+  //     // .attr('fill', function(d){return color(d.data.Compositeur)})
+  //     .attr('fill', '#18100b')
+  //     // .attr('stroke', function(d){return color(d.data.Compositeur)})
+  //     .attr('stroke', '#18100b')
+  //     .on('mouseover', function(d, i){ show_tooltip(d)})
+  //     .on('mouseout', function(d){ hide_tooltip()});
+
+
+  customizeAxis()
+
+  drawLegend()
+  addCustomCode()
+
+}
+
+initChart();
+
+makeLinechart(data);
+
+
+
+
+
+makeAnnotation();
+
+d3.select("svg").call(responsivefy)
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+  var d = d.data ? d.data : d;
+
+  if (d){
+
+    d3.select("#tooltip").style('display', 'block');
+
+    var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+    var dx = d3.event.pageX;
+
+    if (dx > d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width){
+
+      dx = d3.select('#chart').node().getBoundingClientRect().right - thisTooltip.width;
+    }
+
+    var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+
+        if (graphParameters.selected_tooltip && graphParameters.selected_tooltip.length > 0){
+            var param_array = [graphParameters.selected_tooltip]
+            // var tooltip_values = 1
+        }
+        else{
+        
+                var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+                graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+        }
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+
+
+         );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+      d3.select("#tooltip")
+      .classed('is-active', false);
+
+      d3.select("#tooltip")
+      .style('display', 'none');
+
+    }
+
+    function updateParameters(){
+
+      var svg = d3.select("svg");
+
+      svg
+      .attr('width', manualReusableParameters.chart_width.value);
+
+      // d3.select('div#chart')
+      // .style('width', manualReusableParameters.chart_width.value);
+
+      svg.attr("width", manualReusableParameters.chart_width.value);
+
+      svg
+      .attr('height', manualReusableParameters.chart_height.value);
+
+      width = manualReusableParameters.chart_width.value - initMargin.left - initMargin.right;
+
+      height = manualReusableParameters.chart_height.value - initMargin.top - initMargin.bottom;
+
+      width = width  - manualReusableParameters.padding_left.value - manualReusableParameters.padding_right.value;
+      height = height - manualReusableParameters.padding_bottom.value- manualReusableParameters.padding_top.value;
+
+    }
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+  var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+  new_n = +new_n;
+
+  return new_n  
+
+}
+
+
+function formatNumbersDate(n, field){
+
+  if (manualReusableParameters.dateField.value == true && manualReusableParameters.dateField.manual_range_value == field){
+
+    return moment(n, manualReusableParameters.dateFieldFormat.value)
+  }
+
+  return +n  
+
+}
+
+
+function arrayIfObject(objectData) {
+
+  var arrayData = objectData.map(function(d) { return d3.values(d) });
+  arrayData.unshift(d3.keys(objectData[0]));
+  return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+  var objectData = arrayData.slice(1).map(function(d) {
+    var this_object = {}
+    for (i in arrayData[0]) {
+      this_object[arrayData[0][i]] = d[i];
+    }
+    return this_object
+  })
+  return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+})
+  .entries(data)
+  return result
+}
+
+function groupbyKVMultiple(data, key, values, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) {
+    var those_values = {};
+    for (i in values){
+      var this_value = values[i];
+      those_values[this_value] = this_function(v, function(e) { return e[this_value]} )
+    }
+
+    return { those_values}
+  })
+  .entries(data);
+
+  result = result.map(function(d){ return _.assign({[key]: d['key'] }, d['value']['those_values'])});
+
+  return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+
+    new_data.push(data.map(function(d) {
+      return {
+        x_value: +d[kValue],
+        name: v,
+        y_value: +d[v]
+      }
+    }));
+  }
+
+  return new_data
+}
+
+
+
+function prepareLineChartIndice100Growth(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:_.round((new_data_next[i].y_value * ((100 + (formatNumbers(d[v])))/100)), 2)});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+
+function prepareLineChartIndice100Value(data, kValue, dValues) {
+  var new_data = [];
+
+  for (i in dValues) {
+    var v = dValues[i];
+    // var new_data_next = [{ x_value: (formatNumbers(data[0][kValue]) - 1), name: v, y_value: 100}];
+    var new_data_next = [];
+
+    for (i in data){
+      var d = data[i];
+      new_data_next.push({x_value: (formatNumbers(d[kValue])), name: v, y_value:(_.round(formatNumbers(100*d[v])/formatNumbers(data[0][v]), 2))});
+    }
+
+    new_data.push(new_data_next)
+  }
+
+  return new_data
+}
+
+function checkIfpercentageInArray(data, dValues){
+
+  var chained_data = _.chain(d3.entries(data))
+  .map(function(d){return d.value})
+  .map(function(d){return dValues.map(function(e){return d[e]})})
+  .value()
+
+  var thisMinMAx = [d3.min(chained_data, function(d){return d3.min(d, function(e){return +e})}), d3.max(chained_data, function(d){return d3.max(d, function(e){return +e})})];
+
+  if (thisMinMAx[0] > -100 && thisMinMAx[0] < 100 && thisMinMAx[1] > -100 && thisMinMAx[1] < 100){
+    return true
+  }
+
+  return false
+
+}
+
+
+function emptyChart(){
+
+  d3.select('#varSwitch').selectAll("*").remove();
+  d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+  d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+
+function findColorsScheme(thisSelection){
+
+  var this_domain = color.domain();
+
+  var this_color = thisSelection == 'libeCategoricalColors' ?  d3.scaleOrdinal(libeCategoricalColors) : thisSelection == 'LibePoliticalColors' ?  d3.scaleOrdinal(LibePoliticalColors) : d3.scaleOrdinal(d3[manualReusableParameters.color_field_select.value]);
+
+  this_color.domain(this_domain);
+
+  return this_color;
+}
+
+function colorUpdated(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return color(thisKey) 
+
+}
+
+function colorBarchart(thisKey){
+
+  if (manualReusableParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+  return basicColors[thisKey].initial 
+
+}
+
+
+function numbers_separators(num){
+  return num.toLocaleString('fr-FR', {minimumFractionDigits: 0});
+}
+
+
+
+
+function drawLegend(){
+
+
+
+    var svg = d3.select('svg');
+
+    svg.select('g.legendOrdinal').remove();
+
+    if (manualReusableParameters.caseLegend.value){
+
+        var thisLegendorientation =  manualReusableParameters.legendOrientation.manual_range_value ? manualReusableParameters.legendOrientation.manual_range_value : manualReusableParameters.legendOrientation.initial_range_value;
+
+        var this_inner_padding = manualReusableParameters.inner_padding_legend.value ? manualReusableParameters.inner_padding_legend.value : manualReusableParameters.inner_padding_legend.initial_value;
+
+        svg.append("g")
+        .attr("class", "legendOrdinal")
+        .attr("transform", "translate("+ (width - 100 )+  ",20)");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            color.domain(d3.keys(graphParameters.personalizedColorsObject))
+      }
+
+        var ordinal = d3.scaleOrdinal()
+        .domain(color.domain())
+        .range(color.range());
+
+        var legendOrdinal = d3.legendColor()
+        .orient(thisLegendorientation)
+        .shapeWidth(15)
+        .shapeHeight(15)
+        .shapePadding(this_inner_padding)
+        .scale(ordinal);
+
+
+        svg.select(".legendOrdinal")
+        .call(legendOrdinal);
+
+        var thisElementWidth = Math.round(d3.select('.legendOrdinal').node().getBBox().width);
+        var thisElementHeight = Math.round(d3.select('.legendOrdinal').node().getBBox().height);
+
+        svg.selectAll(".legendOrdinal text.label")
+        .style('font-size', '0.8rem');
+
+        var this_padding_left = manualReusableParameters.padding_left_legend.value ? manualReusableParameters.padding_left_legend.value : 0;
+        var this_padding_top = manualReusableParameters.padding_top_legend.value ? manualReusableParameters.padding_top_legend.value : 0;
+
+        if (manualReusableParameters.caseLegend.manual_range_value){
+            if (manualReusableParameters.caseLegend.manual_range_value == 'topRight'){
+
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth + this_padding_left);
+                var thisElementTopMargin = (20 + this_padding_top);
+
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'topLeft'){
+                var thisElementLeftMargin = 20 + this_padding_left;
+                var thisElementTopMargin = (20 + this_padding_top);
+            }
+
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomLeft'){
+                var thisElementLeftMargin = (20 + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top );
+            }
+            else if (manualReusableParameters.caseLegend.manual_range_value == 'bottomRight'){
+                var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+                var thisElementTopMargin = (manualReusableParameters.chart_height.value - thisElementHeight + this_padding_top ); 
+            }
+
+        }
+        else{
+            var thisElementLeftMargin = (manualReusableParameters.chart_width.value - thisElementWidth  + this_padding_left);
+            var thisElementTopMargin = (20 + this_padding_top);
+
+        }
+
+
+        svg.select(".legendOrdinal")
+        .attr("transform", "translate("+ thisElementLeftMargin +  ","+ thisElementTopMargin + ")");
+
+        if (manualReusableParameters.persColorsCheck.value){
+
+            svg.selectAll(".legendOrdinal g.cell rect").style('fill', function(d){return colorUpdated(d)})
+
+
+        }
+
+    }
+
+}
+
+
+
+
+function changeAxis(xScale, yScale){
+
+
+    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+        moment.locale('fr')
+
+        function thisDateFormat (d){ return moment(d).format('L')}
+
+    }
+    else{
+
+        function thisDateFormat (d){ return d}
+
+    }
+
+
+    if (graphParameters.selected_graph != 'barChartHorizontal'){
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(thisDateFormat);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(numbers_separators);
+
+    }
+
+    else{
+
+    axis_bottom = d3.axisBottom(xScale).ticks(manualReusableParameters.bottomAxisTickNumber.value).tickFormat(numbers_separators);
+    axis_left = d3.axisLeft(yScale).ticks(manualReusableParameters.leftAxisTickNumber.value).tickFormat(thisDateFormat);
+
+    }
+
+
+
+
+}
+
+
+function customizeAxis(){
+
+
+  var svg = d3.select('svg');
+
+  svg.select("g.axis--x path").attr('stroke', manualReusableParameters.bottomAxisStroke.manual_range_value)
+
+  svg.select("g.axis--y path").attr('stroke', manualReusableParameters.leftAxisStroke.manual_range_value)
+
+  svg.selectAll("g.axis--x, g.axis--y").selectAll('g.tick line').attr('stroke', manualReusableParameters.ticksStroke.manual_range_value);
+
+
+
+  if (manualReusableParameters.leftTickSize.manual_range_value){
+    if (manualReusableParameters.leftTickSize.manual_range_value == 'small'){var thisLeftTickx1Value = 0  }
+      else if (manualReusableParameters.leftTickSize.manual_range_value == 'fullWidth'){var thisLeftTickx1Value = width  }
+        else if (manualReusableParameters.leftTickSize.manual_range_value == 'invisible'){var thisLeftTickx1Value = -6  }
+      }
+    else {var thisLeftTickx1Value = 0  }
+
+      if (manualReusableParameters.bottomTickSize.manual_range_value){
+        if (manualReusableParameters.bottomTickSize.manual_range_value == 'small'){var thisBottomTickx1Value = 0  }
+          else if (manualReusableParameters.bottomTickSize.manual_range_value == 'fullWidth'){var thisBottomTickx1Value = -height  }
+            else if (manualReusableParameters.bottomTickSize.manual_range_value == 'invisible'){var thisBottomTickx1Value = 6  }
+          }
+        else {var thisBottomTickx1Value = 0  }
+
+          svg.select("g.axis--y").selectAll('g.tick line').attr('x1', thisLeftTickx1Value);
+
+        svg.select("g.axis--x").selectAll('g.tick line').attr('y1', thisBottomTickx1Value);
+
+
+      }
+
+
+      function xAxisLabel(sel, labelText){
+
+
+        if (manualReusableParameters.xAxisLabel.value && manualReusableParameters.xAxisLabelText.value){
+
+          var labelText = manualReusableParameters.xAxisLabelText.value;
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.xAxisLabelPadding.value ? +manualReusableParameters.xAxisLabelPadding.value : 0;
+
+        var this_sel = sel
+        .selectAll('text.xAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel');
+
+        this_sel
+        .merge(this_selE)         
+        .attr("transform",
+          "translate(" + (width/2) + " ," + 
+          (+thisPadding + height + margin.top + 20) + ")")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+
+
+      function yAxisLabel(sel, labelText){
+
+        if (manualReusableParameters.yAxisLabel.value && manualReusableParameters.yAxisLabelText.value){
+
+          var labelText = manualReusableParameters.yAxisLabelText.value;
+
+
+
+        }
+        else{
+
+          var labelText = "";
+
+        }
+
+        var thisPadding =  manualReusableParameters.yAxisLabelPadding.value ? +manualReusableParameters.yAxisLabelPadding.value : 0;
+
+
+        var this_sel = sel
+        .selectAll('text.yAxisLabel')
+        .data([labelText]);
+
+        this_sel.exit().remove();
+
+        this_selE = this_sel
+        .enter()
+        .append("text")
+        .attr('class', 'xAxisLabel')
+        .attr("transform", "rotate(-90)")
+        ;
+
+        this_sel
+        .merge(this_selE)         
+        .attr("y", (+thisPadding - margin.left))
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(function(d){return d});
+
+
+
+      }
+
+            function xScaleType(){
+
+                if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                    return d3.scaleTime()
+
+                }
+
+                else{
+
+                    return d3.scaleLinear()
+
+                }
+
+            }
+
+            function recalculateAndTransformValues(data, kValue, dValues) {
+
+                var this_data = _.cloneDeep(data);
+
+                if (manualReusableParameters.trimKValue.value){
+
+                    this_data.forEach(function(d){
+                        d[kValue] = _.trim(d[kValue]);
+
+                    })
+
+                }
+
+                if (_.isEmpty(manualCustomParameters['fieldsToReplace']) == false){
+
+                    for(i in manualCustomParameters['fieldsToReplace'])
+                        if (manualCustomParameters['fieldsToReplace'][i].name && manualCustomParameters['fieldsToReplace'][i].newValue && manualCustomParameters['fieldsToReplace'][i].oldValue){
+
+                            this_data.forEach(function(d){
+
+                                d[manualCustomParameters['fieldsToReplace'][i].name] = d[manualCustomParameters['fieldsToReplace'][i].name] == manualCustomParameters['fieldsToReplace'][i].oldValue ? manualCustomParameters['fieldsToReplace'][i].newValue : d[manualCustomParameters['fieldsToReplace'][i].name];
+
+                            })
+
+
+                        }
+
+                    }
+
+                    if (manualReusableParameters.dateField.value && manualReusableParameters.dateField.manual_range_value){
+
+                      moment.locale('fr')
+
+                        this_data.forEach(function(d){
+                            d[manualReusableParameters.dateField.manual_range_value] = moment(d[manualReusableParameters.dateField.manual_range_value], manualReusableParameters.dateFieldFormat.value);
+
+                        })
+
+                    }
+
+                    return this_data
+                }
+
+function responsivefy(svg, width, height) {
+
+    // get container + svg aspect ratio
+    var container = d3.select(svg.node().parentNode),
+        width = parseInt(svg.style('width')),
+        height = parseInt(svg.style("height")),
+        // aspect = width / height;
+        aspect = width / height;
+
+    // add viewBox and preserve aspectratio properties
+    // call resize so that svg resizes on initial page load
+    svg.attr("viewBox", "0 0 " + width + " " + height)
+        .attr("preserveAspectRatio", "xMinYMid")
+        .call(resize);
+
+    // to register multiple listeners for the same event type
+    d3.select(window).on("resize." + container.attr("id"), resize);
+
+    function resize() {
+
+        var targetWidth = parseInt(container.style("width"));
+        var targetHeight = Math.round(targetWidth / aspect);
+
+        svg.attr("width", targetWidth);
+        svg.attr("height", targetHeight);
+
+    }
+}
+
+function add_tooltip_values(this_grouped_data, data, kValue){
+
+
+        this_grouped_data.forEach(function(d) {
+            var o = data.filter(function(e){return e[kValue] ==  d[kValue]})[0];
+        for (i in graphParameters.selected_tooltip){
+            var this_el = graphParameters.selected_tooltip[i]
+            if (d3.keys(d).indexOf(this_el) == -1){
+
+                d[this_el] = o[this_el];
+            }
+        }
+    })
+
+    return this_grouped_data
+
+}
+
+function addCustomCode(){
+
+if (eval(manualReusableParameters.customCode.value))
+    {eval(manualReusableParameters.customCode.value)}
+
+}
+      </script>
+    </body>
+    </html>

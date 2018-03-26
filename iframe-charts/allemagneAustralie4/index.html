@@ -1,0 +1,593 @@
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Allemagne Australie 4</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.1/css/bulma.min.css"> -->
+	<link rel="stylesheet" href="../utilities/css/bulma.css">
+	<link rel="stylesheet" href="../utilities/css/styles.css">
+
+
+</head>
+<body>
+	<section class="hero">
+		<!-- <img class="logo" src="static/img/logo.png" alt=""> -->
+		<div class="container">
+			<!-- <h1 class="title" >Allemagne Australie 4</h1> -->
+			<!-- <h2 class="subtitle">Mes graphiques</h2> -->
+
+		</div>
+	</section>
+
+
+	<section class="section" class="">
+		<div class="container">
+
+
+
+
+				<div id="chart">
+				<h4 class="title is-4" id="chartTitle"></h4>
+				<div id="varSwitch" class='tags'></div>
+					<svg width="600" height="400"></svg>
+				</div>
+
+</section>
+
+				<!-- JS -->
+				<script src="../utilities/js/jquery-1.10.2.js"></script>
+
+	<script src="https://d3js.org/d3.v4.js"></script>
+  <script src="../utilities/js/d3-annotation.min.js"></script>
+	<script src="https://unpkg.com/d3-area-label@1.2.0"></script>
+	<script src="../utilities/js/d3-scale-chromatic.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+	<!-- <script src="static/js/app.js"></script> -->
+
+	<script type="text/javascript">
+
+   var margin = {},
+    width,
+    height;
+    var initMargin = {
+        top: 20,
+        right: 20,
+        bottom: 60,
+        left: 40
+    };
+
+
+    var initTotalWidth = 600;
+    var initTotalHeight = 400;
+
+    var initWidth = initTotalWidth - initMargin.left - initMargin.right;
+    var initHeight = initTotalHeight - initMargin.top - initMargin.bottom;
+
+var categorical_color_scale = [
+{ "name" : "schemeAccent", "n": 8},
+{ "name" : "schemeDark2", "n": 8},
+{ "name" : "schemePastel2", "n": 8},
+{ "name" : "schemeSet2", "n": 8},
+{ "name" : "schemeSet1", "n": 9},
+{ "name" : "schemePastel1", "n": 9},
+{ "name" : "schemeCategory10", "n" : 10},
+{ "name" : "schemeSet3", "n" : 12 },
+{ "name" : "schemePaired", "n": 12},
+{ "name" : "schemeCategory20", "n" : 20 },
+{ "name" : "schemeCategory20b", "n" : 20},
+{ "name" : "schemeCategory20c", "n" : 20 }
+];
+
+
+var basicColors = {plain:{initial:"#e61e49", personalized:null}, positive:{initial:'#85b4b2', personalized:null}, negative:{initial:"#e61e49", personalized:null}};
+
+
+var data = [{"period":"2000","datetime":"2000-03-31","DEU":2.959229,"AUS":3.519459},{"period":"2001","datetime":"2001-03-31","DEU":1.703722,"AUS":2.503298},{"period":"2002","datetime":"2002-03-31","DEU":-0.002689,"AUS":3.981491},{"period":"2003","datetime":"2003-03-31","DEU":-0.715266,"AUS":2.996758},{"period":"2004","datetime":"2004-03-31","DEU":1.172711,"AUS":3.944262},{"period":"2005","datetime":"2005-03-31","DEU":0.706714,"AUS":3.201941},{"period":"2006","datetime":"2006-03-31","DEU":3.694843,"AUS":2.722636},{"period":"2007","datetime":"2007-03-31","DEU":3.263266,"AUS":4.528599},{"period":"2008","datetime":"2008-03-31","DEU":1.087307,"AUS":2.450755},{"period":"2009","datetime":"2009-03-31","DEU":-5.623634,"AUS":1.78695},{"period":"2010","datetime":"2010-03-31","DEU":4.085244,"AUS":2.378078},{"period":"2011","datetime":"2011-03-31","DEU":3.652409,"AUS":2.565916},{"period":"2012","datetime":"2012-03-31","DEU":0.499252,"AUS":3.691057},{"period":"2013","datetime":"2013-03-31","DEU":0.482373,"AUS":2.139017},{"period":"2014","datetime":"2014-03-31","DEU":1.932171,"AUS":2.757441},{"period":"2015","datetime":"2015-03-31","DEU":1.747932,"AUS":2.423714},{"period":"2016","datetime":"2016-03-31","DEU":1.938975,"AUS":2.499657}];
+
+var chartFormParameters = {"rotateXRow":{"value":false,"type":"checkbox","label":"pivoter l'étiquette des X","initial_value":false,"activated":1,"category":"general"},"chart_width":{"value":600,"type":"slider","label":"Largeur du graphique","initial_value":600,"min":300,"max":800,"activated":1,"category":"general"},"chart_height":{"value":400,"type":"slider","label":"Hauteur du graphique","initial_value":400,"min":200,"max":800,"activated":1,"category":"general"},"padding_bottom":{"value":0,"type":"slider","label":"marge basse","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_left":{"value":0,"type":"slider","label":"marge gauche","initial_value":0,"min":-100,"max":100,"activated":1,"category":"general"},"padding_right":{"value":0,"type":"slider","label":"marge droite","initial_value":0,"min":-100,"max":100,"activated":0,"category":"general"},"padding_top":{"value":0,"type":"slider","label":"marge haute","initial_value":0,"min":-100,"max":100,"activated":0,"category":"general"},"sort_descending":{"value":false,"type":"checkbox","label":"tri décroissant","initial_value":true,"activated":1,"category":"general"},"rangeX":{"type":"checkInputs","label":"Range X personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":null,"calculated_right_value":null,"manual_left_value":null,"manual_right_value":null,"activated":0,"category":"general"},"rangeY":{"type":"checkInputs","label":"Range Y personalisée","initial_left_value":null,"initial_right_value":null,"calculated_left_value":-5.623634,"calculated_right_value":4.528599,"manual_left_value":null,"manual_right_value":null,"activated":1,"category":"general"},"color_field_select":{"value":"schemeDark2","type":"colorFieldSelect","label":"Jeu de couleurs","initial_value":"schemeDark2","activated":0,"fields":["libeCategoricalColors","LibePoliticalColors","schemeDark2","schemeAccent","schemePastel2","schemeSet2","schemeSet1","schemePastel1","schemeCategory10","schemeSet3","schemePaired","schemeCategory20","schemeCategory20b","schemeCategory20c"],"category":"color"},"persColorsCheck":{"value":false,"type":"persColorsCheck","label":"Couleurs personalisées","initial_value":false,"activated":1,"category":"color"}};
+
+var graphParameters = {"selected_xRows":["period"],"selected_yRows":["DEU","AUS"],"selected_size":[],"selected_color":[],"selected_label":[],"personalizedColorsObject":{},"additionnalParam":"makeVarSwitch(graphParameters.selected_yRows, makeBarchart, data)","selected_graph":"barChart","annotations":[],"chartTitle":"Allemagne Australie 4"};
+
+
+graphParameters.annotations.forEach(function(d){
+
+d.type = d3[d.functionName];
+
+
+})
+
+var parametersType = [{
+  selector:'dropdiv_x', tagsArray:graphParameters['selected_xRows'], dropzoneName:'dropzoneX'},
+{selector:'dropdiv_y', tagsArray:graphParameters['selected_yRows'], dropzoneName:'dropzoneY'},
+{selector:'size_tags', tagsArray:graphParameters['selected_size'], dropzoneName:'dropzoneSize'},
+{selector:'color_tags', tagsArray:graphParameters['selected_color'], dropzoneName:'dropzoneColor'},
+{selector:'label_tags', tagsArray:graphParameters['selected_label'], dropzoneName:'dropzoneLabel'}
+];
+
+var div = d3.select("body").append("div")
+    .attr("id", "tooltip")
+    .attr('class', 'box');
+
+var color = d3.scaleOrdinal(d3.schemeDark2);
+
+var parseTime = d3.timeParse('%Y/%m/%d');
+
+d3.select("#chart")
+.attr("class", graphParameters.selected_graph);
+
+d3.select("#chartTitle")
+      .text(graphParameters['chartTitle']);
+
+function initChart() {
+
+    var svg = d3.select("svg");
+
+    margin = {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 40
+    };
+
+    width = +svg.attr("width") - margin.left - margin.right;
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+
+    var g = svg.append("g")
+        .attr('class', 'graphContainer')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")");
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .attr('transform', 'translate(0,0)');
+
+    g.append("g")
+        .attr('class', 'innerGraph');
+
+}
+
+
+ var makeAnnotations_ = d3.annotation()
+  .editMode(false)
+  // .type(annotationType)
+  ;
+
+
+ var annotationGroup = d3.select("#chart svg")
+  .append("g")
+  .attr("class", "annotation-group");
+
+
+var annotations = graphParameters.annotations ? graphParameters.annotations : [];
+
+
+function makeAnnotation(){
+
+
+
+for (i in makeAnnotations_.annotations()){
+
+var d = makeAnnotations_.annotations()[i];
+
+// console.log(d);
+// console.log(i);
+
+annotations[i].x = d.x;
+annotations[i].y = d.y;
+annotations[i].dx = d.dx;
+annotations[i].dy = d.dy;
+
+}
+
+makeAnnotations_
+.annotations(annotations)
+
+d3.select("#chart svg g.annotation-group")
+  .call(makeAnnotations_);
+
+
+
+}
+
+
+function makeBarchart(data) {
+
+    var kValue = graphParameters['selected_xRows'][0];
+    var dValue = graphParameters['selected_yRows'][0];
+    var dValues = graphParameters['selected_yRows'];
+
+
+    data.forEach(function(d) {
+        d[dValue] = formatNumbers(d[dValue]);
+        for (i in dValues){
+            d[dValues[i]] = formatNumbers(d[dValues[i]]);
+        }
+    })
+
+    var svg = d3.select("svg");
+    var g = svg.select('g.graphContainer');
+    var g_inner = g.select('g.innerGraph');
+
+    updateParameters();
+
+    // var this_grouped_data = data.map(function(d) { return d.this_key; })
+    // .map(function(d){return {key:d, value: d3.sum(data.filter(function(e){return e.this_key == d}), function(e){return e.this_value})}});
+
+    this_grouped_data = groupbyKVMultiple(data, kValue, dValues, d3.sum);
+    this_grouped_data = this_grouped_data.filter(function(d) { return d[kValue] != ''});
+
+    chartFormParameters.rangeY.calculated_left_value =  d3.min(this_grouped_data, function(d) { return d3.min(d3.entries(d).filter(function(k){ return dValues.indexOf(k.key) != -1}).map(function(v) {return v.value}))});
+    chartFormParameters.rangeY.calculated_right_value =  d3.max(this_grouped_data, function(d) { return d3.max(d3.entries(d).filter(function(k){ return dValues.indexOf(k.key) != -1}).map(function(v) {return v.value}))});
+
+    var thisYMin = chartFormParameters.rangeY.value == false ?  chartFormParameters.rangeY.calculated_left_value : chartFormParameters.rangeY.manual_left_value ? chartFormParameters.rangeY.manual_left_value : chartFormParameters.rangeY.calculated_left_value;
+    var thisYMax = chartFormParameters.rangeY.value == false ?  chartFormParameters.rangeY.calculated_right_value : chartFormParameters.rangeY.manual_right_value ? chartFormParameters.rangeY.manual_right_value : chartFormParameters.rangeY.calculated_right_value;
+
+    // reGenerateParameters();
+
+    if (chartFormParameters.sort_descending.value == 1){
+        this_grouped_data = this_grouped_data.sort(function(a, b) { return b[dValue] - a[dValue]});
+    }
+
+    x = d3.scaleBand().rangeRound([0, width]).padding(0.1);
+
+    y = d3.scaleLinear().rangeRound([height,  0]);
+
+    x.domain(this_grouped_data.map(function(d) { return d[kValue];}));
+    y.domain([Math.min(thisYMin, 0), thisYMax]);
+
+    g.select('g.innerGraph')
+    .attr("transform", "translate(" + chartFormParameters.padding_left.value + ",0)");
+
+
+
+    g.select("g.axis.axis--y")
+    .attr("transform", "translate(" + (chartFormParameters.padding_left.value) + ", 0)")
+    // .attr('transform', 'translate(0,0)')
+    .call(d3.axisLeft(y).tickFormat(numbers_separators)
+        );
+
+    var all_bars = g_inner.selectAll("rect").data(this_grouped_data);
+
+    all_bars
+    .transition()
+    .duration(200)
+    .attr("x", function(d) { return x(d[kValue]);})
+    .attr("y", function(d) { return y(Math.max(0, d[dValue])); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return Math.abs(y(0) - y(d[dValue])); })
+    .style('fill', function(d){ return thisYMin >=0 ? colorBarchart('plain') :  d[dValue] >=0  ? colorBarchart('positive') : colorBarchart('negative')})
+
+    all_bars.exit().transition().duration(200).remove();
+
+    all_bars
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d[kValue]); })
+    .attr("y", function(d) { return y(Math.max(0, d[dValue])); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return Math.abs(y(0) - y(d[dValue])); })
+    .style('fill', function(d){ return thisYMin >=0 ? colorBarchart('plain') :  d[dValue] >=0  ? colorBarchart('positive') : colorBarchart('negative')})
+    .on('mouseover', function(d, i){ show_tooltip(d)})
+    .on('mouseout', function(d){ hide_tooltip()});
+
+    g.select("g.axis.axis--x")
+    .attr("transform", "translate(" + chartFormParameters.padding_left.value + "," + height + ")")
+    .call(d3.axisBottom(x))
+    .selectAll("text")
+    .style("text-anchor", "middle")
+    .attr("dx", "0em")
+    .attr("dy", "0.7em")
+    .attr("transform", "rotate(0)")
+    ;
+
+    if (chartFormParameters.rotateXRow.value == true){
+
+        g.select("g.axis.axis--x")
+        .attr("transform", "translate(" + chartFormParameters.padding_left.value + "," + height + ")")
+        .selectAll("g.tick")
+        .select("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-40)");
+
+    }
+
+}
+
+initChart();
+
+makeBarchart(data);
+
+makeVarSwitch(graphParameters.selected_yRows, makeBarchart, data)
+
+
+
+makeAnnotation();
+
+// output_from_parsed_html_template = html_template.render(this_title=this_title, chart_html=chart_html, 
+//         chart_data=data, chart_parameters=chart_parameters, chart_function=chart_function)
+
+// 
+
+
+////////////////////////////////////
+//////////////////////CHART UTILITIES FUNCTIONS
+
+function show_tooltip(d) {
+
+      var d = d.data ? d.data : d;
+
+        if (d){
+
+          console.log(d);
+
+
+        d3.select("#tooltip").style('display', 'block');
+
+        var thisTooltip = d3.select('#tooltip').node().getBoundingClientRect();
+
+        var dx = d3.event.pageX;
+        var dy = d3.event.pageY - 28;
+
+
+    //         d3.select(this)
+    //     .style('position', 'relative')
+    //     .style("left", (d3.event.x - d.x_origin))
+    //     .style("top", (d3.event.y - d.y_origin));
+    // var thisDropdiv = d3.select('#'+ d.selector+'').node().getBoundingClientRect();
+
+
+        // this_x = x
+
+        var list_candidates = '';
+
+        var this_inner_html = '';
+
+        var param_array = [graphParameters.selected_xRows, graphParameters.selected_yRows, 
+          graphParameters.selected_size, graphParameters.selected_color, graphParameters.selected_label];
+
+        for (i in param_array){
+
+          var inner_array =param_array[i];
+
+          if (_.isEmpty(inner_array) == false){
+
+            for (j in inner_array){
+
+              this_inner_html += '<strong>'+ inner_array[j] + '</strong> : '+ d[inner_array[j]] + '</strong><br />'
+            }
+
+
+
+          } 
+
+
+
+        }
+
+
+        d3.select("#tooltip")
+        .style("left", (dx) + "px")
+        .style("top", (dy) + "px")
+        .classed('is-active', true)
+        .html(this_inner_html
+          // '<i class="closebox"></i><strong>' + "</strong><br />"
+         // '<strong>'+ (d.Nom.split('(')[1] ? (d.Nom.split('(')[1].replace(')', '') + ' ') : '')  + d.Nom.split('(')[0] + '</strong> de <strong>'+ d.Compositeur + '</strong><br />'
+         //   + d.Lieu + '<br />'
+         //   + 'Age : <strong>' + d.Age + ' ans </strong> <br />'
+
+      
+
+        );
+
+      }
+      else
+      {
+        d3.select("#tooltip").style('display', 'none');
+
+      }
+
+    }
+
+    function hide_tooltip() {
+
+
+        d3.select("#tooltip")
+        .classed('is-active', false);
+
+        d3.select("#tooltip")
+        .style('display', 'none');
+
+    }
+
+function updateParameters(){
+
+  var svg = d3.select("svg");
+
+  svg
+  .attr('width', chartFormParameters.chart_width.value);
+
+  svg
+  .attr('height', chartFormParameters.chart_height.value);
+
+  width = chartFormParameters.chart_width.value - initMargin.left - initMargin.right;
+
+  height = chartFormParameters.chart_height.value - initMargin.top - initMargin.bottom;
+
+  width = width  - chartFormParameters.padding_left.value;
+  height = height - chartFormParameters.padding_bottom.value;
+
+}
+
+
+///////////////////////////////////////////////////////////////
+//////////////////// UTILITIES FUNCTIONS
+
+function makeVarSwitch (rowsToSwitch, this_function, data){
+
+  var allSwitch = d3.select('#varSwitch')
+  .selectAll('span.tag')
+  .data(rowsToSwitch);
+
+
+
+  allSwitch
+  .text(function(d){return d});
+
+  allSwitch.exit().remove();
+
+  allSwitch
+  .enter()
+  .append('span')
+  .attr('class', 'tag')
+  .text(function(d){return d})
+  .on('click', function(d){
+
+    d3.selectAll('#varSwitch span.tag')
+    .classed('is-primary', false);
+
+    d3.select(this)
+    .classed('is-primary', true);
+
+    rowsToSwitch.splice(rowsToSwitch.indexOf(d), 1);
+    rowsToSwitch.unshift(d);
+
+    this_function(data);
+  }
+
+  );
+
+
+  d3.select('#varSwitch span.tag')
+  .classed('is-primary', true);
+
+
+
+
+}
+
+
+function formatNumbers(n){
+
+var new_n = /^(\d+,\d+)$/.test(n) ? n.replace(',', '.') : n;
+new_n = +new_n;
+
+return new_n  
+
+}
+
+function arrayIfObject(objectData) {
+
+    var arrayData = objectData.map(function(d) { return d3.values(d) });
+    arrayData.unshift(d3.keys(objectData[0]));
+    return arrayData
+
+}
+
+
+function objectIfArray(arrayData) {
+
+    var objectData = arrayData.slice(1).map(function(d) {
+        var this_object = {}
+        for (i in arrayData[0]) {
+            this_object[arrayData[0][i]] = d[i];
+        }
+        return this_object
+    })
+    return objectData
+}
+
+
+function groupbyKV(data, key, value, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) { return this_function(v, function(e) { return e[value] })
+})
+  .entries(data)
+  return result
+}
+
+function groupbyKVMultiple(data, key, values, this_function) {
+  var result = d3.nest()
+  .key(function(d) { return d[key] })
+  .rollup(function(v) {
+    var those_values = {};
+    for (i in values){
+      var this_value = values[i];
+      those_values[this_value] = this_function(v, function(e) { return e[this_value]} )
+    }
+
+    return { those_values}
+  })
+  .entries(data);
+
+  result = result.map(function(d){ return _.assign({[key]: d['key'] }, d['value']['those_values'])});
+
+  return result
+}
+
+function prepareLineChartData(data, kValue, dValues) {
+    var new_data = [];
+
+    for (i in dValues) {
+        var v = dValues[i];
+
+        new_data.push(data.map(function(d) {
+            return {
+                x_value: +d[kValue],
+                name: v,
+                y_value: +d[v]
+            }
+        }));
+    }
+
+    return new_data
+}
+
+function emptyChart(){
+
+    d3.select('#varSwitch').selectAll("*").remove();
+    d3.select("#chart .graphContainer .innerGraph").selectAll("*").remove();
+    d3.select("#chart .graphContainer .axis--x").selectAll("*").remove();
+    d3.select("#chart .graphContainer .axis--y").selectAll("*").remove();
+}
+
+
+function colorUpdated(thisKey){
+
+  if (chartFormParameters.persColorsCheck.value){
+
+    return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+  }
+
+return color(thisKey) 
+
+}
+
+    function colorBarchart(thisKey){
+
+      if (chartFormParameters.persColorsCheck.value){
+
+        return graphParameters.personalizedColorsObject[thisKey] ? graphParameters.personalizedColorsObject[thisKey] : color(thisKey) 
+      }
+
+      return basicColors[thisKey].initial 
+
+    }
+
+
+function numbers_separators(num){
+    return num.toLocaleString('fr-FR', {minimumFractionDigits: 0});
+}
+
+	</script>
+</body>
+</html>
