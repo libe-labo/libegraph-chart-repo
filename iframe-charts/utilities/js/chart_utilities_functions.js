@@ -1,4 +1,5 @@
-
+(function( window, undefined ) {
+chart_utilities_functions
 function makeVarSwitch (rowsToSwitch, this_function, data){
 
   var allSwitch = d3.select('#varSwitch')
@@ -905,3 +906,4 @@ return false
       }
       return basicColors[thisKey].initial 
     }
+})( window )
